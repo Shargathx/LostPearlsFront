@@ -3,7 +3,7 @@
 
     <div class="row justify-content-center">
       <div class="col col-4">
-        <AlertDanger :error-message="errorMessage"/> SIIA VAJA ALERT NÄHTAVAKS
+        <AlertDanger :error-message="errorMessage"/>
       </div>
     </div>
 
@@ -12,7 +12,7 @@
 
         <div class="mb-3">
           <label class="form-label">Kasutajanimi või parool</label>
-          <input v-model="username" type="text" class="form-control">
+          <input v-model="loginName" type="text" class="form-control">
         </div>
 
         <div class="mb-3">
@@ -30,13 +30,17 @@
 
 <script>
 import AlertDanger from "@/components/alert/AlertDanger.vue";
+import LoginService from "@/services/LoginService";
+import Navigation from "@/navigation/Navigation";
+import ErrorCodes from "@/errors/ErrorCodes";
+
 
 export default {
   name: "LoginView",
   components: {AlertDanger},
   data() {
     return {
-      username: '',
+      loginName: '',
       password: '',
 
       errorMessage: '',
@@ -52,7 +56,57 @@ export default {
       }
     }
   },
-}
+  methods: {
+
+    login() {
+      if (this.allFieldsAreWithCorrectInput()) {
+        this.sendLoginRequest()
+      } else {
+        this.errorMessage = 'Palun täida kõik väljad!'
+      }
+    },
+
+    allFieldsAreWithCorrectInput() {
+      return this.loginName.length > 3 && this.password.length >= 3
+    },
+
+    sendLoginRequest() {
+      LoginService.sendGetLoginRequest(this.loginName, this.password)
+          .then(response => this.handleLoginResponse(response))
+          .catch(error => this.handleLoginErrorResponse(error))
+    },
+
+    handleLoginResponse(response) {
+      this.loginResponse = response.data
+      sessionStorage.setItem('userId', this.loginResponse.userId)
+      sessionStorage.setItem('roleName', this.loginResponse.roleName)
+      Navigation.navigateToGamesView()
+    },
+
+    handleLoginErrorResponse(error) {
+
+      let httpStatusCode = error.response.status
+      this.errorResponse = error.response.data
+      this.handleIncorrectCredentials(httpStatusCode);
+    },
+
+    handleIncorrectCredentials(httpStatusCode){
+      if(this.isIncorrectCredentials(httpStatusCode)){
+        this.errorMessage = this.errorResponse.message
+      } else {
+        alert('k6ik on jumala pekkis')
+      }
+    },
+
+    isIncorrectCredentials(httpStatusCode){
+      return httpStatusCode === 403 && this.errorResponse.errorCode === ErrorCodes.CODE_INCORRECT_CREDENTIALS;
+
+    },
+
+
+    }
+
+  }
 </script>
 
 

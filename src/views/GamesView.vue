@@ -1,7 +1,7 @@
 <script>
 
 export default {
-name: "GamesView"
+username: "GamesView"
 }
 </script>
 

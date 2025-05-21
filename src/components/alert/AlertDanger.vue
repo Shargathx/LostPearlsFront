@@ -6,7 +6,7 @@
 
 <script>
 export default {
-  name: 'AlertDanger',
+  username: 'AlertDanger',
   props: {
     errorMessage: String
   }

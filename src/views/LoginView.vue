@@ -36,7 +36,7 @@ import ErrorCodes from "@/errors/ErrorCodes";
 
 
 export default {
-  name: "LoginView",
+  username: "LoginView",
   components: {AlertDanger},
   data() {
     return {

@@ -8,6 +8,6 @@
 
 <script>
 export default {
-  name: "LocationView"
+  username: "LocationView"
 }
 </script>

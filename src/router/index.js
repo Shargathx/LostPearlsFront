@@ -3,6 +3,7 @@ import RegistrationView from "@/views/RegistrationView.vue";
 import LoginView from "@/views/LoginView.vue";
 import LandingPageView from "@/views/LandingPageView.vue";
 import GamesView from "@/views/GamesView.vue";
+import ErrorView from "@/views/ErrorView.vue";
 
 const routes = [
     {
@@ -24,6 +25,11 @@ const routes = [
         path: '/games',
         name: 'gamesRoute',
         component: GamesView
+    },
+    {
+        path: '/error',
+        name: 'errorRoute',
+        component: ErrorView
     },
     {
         path: '/about',

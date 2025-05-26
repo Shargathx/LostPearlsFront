@@ -3,15 +3,19 @@ import router from "@/router";
 export default {
 
     navigateToLoginView(){
-        router.push({username: 'loginRoute'})
+        router.push({name: 'loginRoute'})
     },
 
     navigateToGamesView(){
-        router.push({username: 'gamesRoute'})
+        router.push({name: 'gamesRoute'})
     },
 
     navigateToErrorView() {
       //  router.push({name: 'errorView'})
-    }
+    },
+
+    navigateToGameView() {
+        router.push({name: 'gameRoute'})
+    },
 
 }

@@ -39,6 +39,11 @@ const routes = [
         component: LocationView
     },
     {
+        path: '/location/{locationId}',
+        name: 'locationIdRoute',
+        component: LocationView
+    },
+    {
         path: '/about',
         name: 'about',
         // route level code-splitting

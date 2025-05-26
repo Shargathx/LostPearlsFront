@@ -72,6 +72,9 @@
           <div v-if="successMessage" class="alert alert-success text-center">
             {{ successMessage }}
           </div>
+          <div v-if="errorMessage" class="alert alert-danger text-center">
+            {{ errorMessage }}
+          </div>
           <div v-if="duplicateExists" class="alert alert-warning">
             This location already exists with the same name and coordinates.
           </div>
@@ -103,8 +106,6 @@
 import axios from "axios";
 import CountiesDropdown from "@/county/CountiesDropdown.vue";
 import MapPicker from "@/components/MapPicker.vue";
-import {round} from "@popperjs/core/lib/utils/math";
-import * as _ from "vue3-leaflet/src/utils/utils";
 
 export default {
   name: 'LocationView',
@@ -126,6 +127,7 @@ export default {
 
       duplicateExists: false,
       successMessage: '',
+      errorMessage:'',
 
       counties: [],
       userId: 0,
@@ -193,18 +195,22 @@ export default {
       console.log('Sending payload:', payloadLongLat);
 
       axios.post(`/location?userId=${userId}`, payloadLongLat)
-          .then(response => {console.log('POST response data:', response.data);  // Add this line!
+          .then(response => {
+            console.log('POST response data:', response.data);  // Add this line!
             this.successMessage = 'Location added successfully!';
 
             setTimeout(() => {
               this.successMessage = '';
             }, 3000);
 
-       //     const newLocationId = response.data.locationId;
-         //   this.getAddedLocation(newLocationId);
+            //     const newLocationId = response.data.locationId;
+            //   this.getAddedLocation(newLocationId);
           })
           .catch(error => {
-            console.error('Error saving location:', error);
+            this.errorMessage = 'Asukoha lisamisel tekkis viga'
+            setTimeout(() => {
+              this.errorMessage = '';
+            }, 3000);
           });
     },
 

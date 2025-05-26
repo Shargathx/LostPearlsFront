@@ -33,22 +33,8 @@ export default {
         { id: 5, name: "Viljandi" },
         { id: 6, name: "Võrumaa" },
       ],
-      selectedCounty: null,
     };
   },
-  /*
-  props: {
-     todo COMMENT THIS IN AFTER getCounties() via backend is working!!!!
-    counties: {
-      type: Array
-    },
-
-    selectedCountyId: {
-      type: Number,
-      defaultValue: 0
-    },
-  },
-  */
 
   methods: {
     handleCountyDropdownChange(event) {

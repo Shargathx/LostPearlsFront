@@ -1,17 +1,5 @@
 <template>
   <div>
-    <h2>Counties</h2>
-    <ul>
-      <li
-          v-for="county in counties"
-          :key="county.id"
-          @click="goToCounty(county.id)"
-          style="cursor: pointer; margin-bottom: 8px;"
-      >
-        {{ county.name }}
-      </li>
-    </ul>
-
     <div id="map" style="height: 400px;"></div>
   </div>
 </template>
@@ -68,7 +56,7 @@ export default {
     });
 
     this.map.on('click', (e) => {
-      const { lat, lng } = e.latlng;
+      const {lat, lng} = e.latlng;
       this.setMarker(lat, lng);
       this.$emit('update:latitude', parseFloat(lat.toFixed(18)));
       this.$emit('update:longitude', parseFloat(lng.toFixed(18)));
@@ -84,25 +72,45 @@ export default {
       this.updateMarkerPosition(this.latitude, newLng);
     },
     zoomLevel(newLevel) {
-      this.map.setZoom(newLevel)
-    },
+      if (this.map && this.map._container) {
+        this.map.setZoom(newLevel);
+      } else {
+        console.warn('Map not ready, cannot set zoom');
+      }
+    }
 
   },
 
 
   methods: {
 
+    isValidLatLng(lat, lng) {
+      return (
+          typeof lat === "number" && !isNaN(lat) &&
+          typeof lng === "number" && !isNaN(lng) &&
+          lat >= -90 && lat <= 90 &&
+          lng >= -180 && lng <= 180
+      );
+    },
+
     setMarker(lat, lng) {
+      if (!this.isValidLatLng(lat, lng)) {
+        console.warn("Invalid lat/lng passed to setMarker:", lat, lng);
+        return; // skip invalid coords
+      }
       if (this.marker) {
         this.marker.setLatLng([lat, lng]);
       } else {
         this.marker = L.marker([lat, lng]).addTo(this.map);
       }
     },
+
     updateMarkerPosition(lat, lng) {
-      if (lat !== null && lng !== null) {
+      if (this.isValidLatLng(lat, lng)) {
         this.setMarker(lat, lng);
         this.map.panTo([lat, lng]);
+      } else {
+        console.warn("Invalid lat/lng for updateMarkerPosition:", lat, lng);
       }
     }
   }

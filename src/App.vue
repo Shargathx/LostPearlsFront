@@ -1,6 +1,7 @@
 <template>
   <nav>
-
+    <router-link to="/about">Kuidas M2ngida</router-link> |
+    <router-link to="/games">M2ngud</router-link> |
   </nav>
   <router-view/>
 </template>
@@ -27,3 +28,12 @@ nav a.router-link-exact-active {
   color: #42b983;
 }
 </style>
+<script>
+
+export default {
+  mounted() {
+    console.log("Vue app is mounted!");
+  }
+};
+
+</script>

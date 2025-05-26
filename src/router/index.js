@@ -5,6 +5,7 @@ import LandingPageView from "@/views/LandingPageView.vue";
 import GamesView from "@/views/GamesView.vue";
 import ErrorView from "@/views/ErrorView.vue";
 import LocationView from "@/views/LocationView.vue";
+import GameView from "@/views/GameView.vue";
 
 const routes = [
     {
@@ -28,6 +29,11 @@ const routes = [
         component: GamesView
     },
     {
+        path: '/game',
+        name: 'gameRoute',
+        component: GameView
+    },
+    {
         path: '/error',
         name: 'errorRoute',
         component: ErrorView
@@ -42,16 +48,6 @@ const routes = [
         path: '/location/{locationId}',
         name: 'locationIdRoute',
         component: LocationView
-    },
-    {
-        path: '/about',
-        name: 'about',
-        // route level code-splitting
-        // this generates a separate chunk (about.[hash].js) for this route
-        // which is lazy-loaded when the route is visited.
-        component: function () {
-            return import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
-        }
     }
 ]
 

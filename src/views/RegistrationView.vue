@@ -5,7 +5,7 @@
 
       <form @submit.prevent="register" class="space-y-6">
 
-        <div class="flex flex-col space-y-2 justify-content-end">
+        <div>
           <AlertDanger :error-message="errorMessage"/>
         </div>
 
@@ -82,10 +82,7 @@ export default {
       RegistrationService.sendPostRegistrationRequest(this.user)
           .then(() => Navigation.navigateToLoginView())
           .catch(error => {
-
             this.errorResponse = error.response.data
-
-
             if (this.errorResponse.errorCode === 101) {
               this.errorMessage = this.errorResponse.message
             } else {

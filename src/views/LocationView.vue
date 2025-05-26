@@ -106,6 +106,7 @@
 import axios from "axios";
 import CountiesDropdown from "@/county/CountiesDropdown.vue";
 import MapPicker from "@/components/MapPicker.vue";
+import {map} from "leaflet/src/map";
 
 export default {
   name: 'LocationView',
@@ -127,7 +128,7 @@ export default {
 
       duplicateExists: false,
       successMessage: '',
-      errorMessage:'',
+      errorMessage: '',
 
       counties: [],
       userId: 0,
@@ -223,6 +224,30 @@ export default {
       axios.get(`/location/${locationId}`) // <-- use backticks for template string
           .then(response => console.log('Fetched location:', response.data))
           .catch(error => console.error('Error fetching location:', error));
+    },
+
+    async goToCounty(id) {
+      try {
+        const response = await fetch(`/county/${id}`);
+        if (!response.ok) throw new Error('Network response was not ok');
+
+        const county = await response.json();
+
+        // county should have: id, name, longitude, latitude, zoomLevel
+        const lat = county.latitude;
+        const lng = county.longitude;
+        const zoom = county.zoomLevel || 10; // fallback zoom
+
+        map.setView([lat, lng], zoom);
+
+        // Optionally add a marker
+        L.marker([lat, lng]).addTo(map)
+            .bindPopup(`${county.name}`)
+            .openPopup();
+
+      } catch (error) {
+        console.error('Failed to fetch county data:', error);
+      }
     },
 
 

@@ -1,12 +1,25 @@
 <template>
-  <div id="map" style="height: 600px;"></div>
+  <div>
+    <h2>Counties</h2>
+    <ul>
+      <li
+          v-for="county in counties"
+          :key="county.id"
+          @click="goToCounty(county.id)"
+          style="cursor: pointer; margin-bottom: 8px;"
+      >
+        {{ county.name }}
+      </li>
+    </ul>
+
+    <div id="map" style="height: 400px;"></div>
+  </div>
 </template>
 
 <script>
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-// Fix the broken default icon
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
   iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
@@ -23,6 +36,7 @@ export default {
   emits: ['update:latitude', 'update:longitude', 'update:zoomLevel'],
   data() {
     return {
+      counties: [],
       map: null,
       marker: null,
     };

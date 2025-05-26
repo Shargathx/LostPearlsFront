@@ -36,7 +36,6 @@
         <button type="submit" class="btn btn-outline-success">Register</button>
       </form>
 
-<!--      <p v-if="error" class="text-red-500 mt-4">{{ error }}</p>-->
     </div>
   </div>
 </template>
@@ -59,7 +58,6 @@ export default {
       },
 
       successMessage: '',
-
       errorMessage: '',
 
       errorResponse: {

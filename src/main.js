@@ -8,6 +8,8 @@ import axios from "axios";
 // bootstrap
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap/dist/js/bootstrap.js"
+import 'leaflet/dist/leaflet.css'
+
 
 // Font Awesome imports
 import {library} from '@fortawesome/fontawesome-svg-core'

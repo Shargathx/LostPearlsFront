@@ -10,7 +10,7 @@
           <div class="col-12">
             <CountiesDropdown
                 :selectedCountyId="locationInfo.countyId"
-                @event-new-county-selected="val => locationInfo.countyId = val"
+                @event-new-county-selected="handleNewCountySelected"
             />
           </div>
 
@@ -29,9 +29,6 @@
                 placeholder="näidis: 59.019"
                 class="form-control"
             />
-            <div v-if="coordinatesErrorMessage.longitude" class="text-danger mt-1">
-              {{ coordinatesErrorMessage.longitude }}
-            </div>
           </div>
 
           <div class="col-6">
@@ -43,12 +40,16 @@
                 placeholder="näidis: 25.314"
                 class="form-control"
             />
-            <div v-if="coordinatesErrorMessage.latitude" class="text-danger mt-1">
-              {{ coordinatesErrorMessage.latitude }}
-            </div>
           </div>
 
           <div class="col-12">
+            <div class="m-3">
+              <label>
+                zoom level:
+              </label>
+              <input v-model="locationInfo.zoomLevel" type="number">
+            </div>
+
             <label for="teaserInfo" class="form-label">Teaser Info</label>
             <textarea v-model="locationInfo.teaser" id="teaserInfo" rows="2" class="form-control"></textarea>
           </div>
@@ -71,6 +72,9 @@
           <div v-if="successMessage" class="alert alert-success text-center">
             {{ successMessage }}
           </div>
+          <div v-if="errorMessage" class="alert alert-danger text-center">
+            {{ errorMessage }}
+          </div>
           <div v-if="duplicateExists" class="alert alert-warning">
             This location already exists with the same name and coordinates.
           </div>
@@ -84,10 +88,12 @@
       <!-- Right side: Map -->
       <div class="col-md-6 mt-3 mt-md-0">
         <MapPicker
+            :zoom-level="locationInfo.zoomLevel"
             :latitude="Number(locationInfo.latitude)"
             :longitude="Number(locationInfo.longitude)"
-            @update:latitude="val => locationInfo.latitude = val"
+            @update:latitude="setLocationInfoLatitude"
             @update:longitude="val => locationInfo.longitude = val"
+            @update:zoomLevel="setLocationInfoZoomLevel"
         />
       </div>
     </div>
@@ -100,17 +106,17 @@
 import axios from "axios";
 import CountiesDropdown from "@/county/CountiesDropdown.vue";
 import MapPicker from "@/components/MapPicker.vue";
-import {round} from "@popperjs/core/lib/utils/math";
-import * as _ from "vue3-leaflet/src/utils/utils";
 
 export default {
   name: 'LocationView',
   components: {MapPicker, CountiesDropdown},
   data() {
     return {
+      zoomLevel: 12,
       locationInfo: {
         countyId: 0,
         locationName: '',
+        zoomLevel: 12,
         longitude: 24.7536,
         latitude: 59.4370,
         teaser: '',
@@ -121,6 +127,7 @@ export default {
 
       duplicateExists: false,
       successMessage: '',
+      errorMessage:'',
 
       counties: [],
       userId: 0,
@@ -134,23 +141,37 @@ export default {
     }
   },
 
-  watch: {
-    locationInfo: {
-      handler: _.debounce(function (newVal) {
-        const {locationName, countyId, latitude, longitude} = newVal;
-        if (locationName && countyId && latitude && longitude) {
-          const lat = round(parseFloat(latitude));
-          const long = round(parseFloat(longitude));
-          this.checkDuplicateLocation(locationName, countyId, lat, long);
-        } else {
-          this.duplicateExists = false;
-        }
-      }, 300), // wait 300ms after changes stop
-      deep: true
-    }
-  },
+  // watch: {
+  //   locationInfo: {
+  //     handler: _.debounce(function (newVal) {
+  //       const {locationName, countyId, latitude, longitude} = newVal;
+  //       if (locationName && countyId && latitude && longitude) {
+  //         const lat = round(parseFloat(latitude));
+  //         const long = round(parseFloat(longitude));
+  //      //   this.checkDuplicateLocation(locationName, countyId, lat, long);
+  //       } else {
+  //         this.duplicateExists = false;
+  //       }
+  //     }, 300), // wait 300ms after changes stop
+  //     deep: true
+  //   }
+  // },
 
   methods: {
+
+    handleNewCountySelected(countyId) {
+      this.locationInfo.countyId = countyId
+      // TODO käivita teenus mis toob ära county kaardi andmed (long, lat, zoom)
+      // TODO vastusest saadud tulemusest update locationInfo objektis neid andmeid
+    },
+
+    setLocationInfoLatitude(latitude) {
+      this.locationInfo.latitude = latitude
+    },
+
+    setLocationInfoZoomLevel(zoomLevel) {
+      this.locationInfo.zoomLevel = zoomLevel
+    },
 
     getAllCounties() {
 
@@ -175,22 +196,30 @@ export default {
 
       axios.post(`/location?userId=${userId}`, payloadLongLat)
           .then(response => {
+            console.log('POST response data:', response.data);  // Add this line!
             this.successMessage = 'Location added successfully!';
 
             setTimeout(() => {
               this.successMessage = '';
             }, 3000);
 
-            const newLocationId = response.data.locationId;
-            this.getAddedLocation(newLocationId);
+            //     const newLocationId = response.data.locationId;
+            //   this.getAddedLocation(newLocationId);
           })
           .catch(error => {
-            console.error('Error saving location:', error);
+            this.errorMessage = 'Asukoha lisamisel tekkis viga'
+            setTimeout(() => {
+              this.errorMessage = '';
+            }, 3000);
           });
     },
 
 
     getAddedLocation(locationId) {
+      if (!locationId) {
+        console.error('getAddedLocation called without a valid locationId:', locationId);
+        return; // or return Promise.reject() if you want to propagate an error
+      }
       axios.get(`/location/${locationId}`) // <-- use backticks for template string
           .then(response => console.log('Fetched location:', response.data))
           .catch(error => console.error('Error fetching location:', error));
@@ -225,18 +254,18 @@ export default {
     },
 
 
-    checkDuplicateLocation(name, countyId, lat, long) {
-      console.log('Checking duplicate:', name, countyId, lat, long);
-      axios.get('/location/check-duplicate', {
-        params: {locationName: name, countyId, latitude: lat, longitude: long}
-      }).then(response => {
-        console.log('Duplicate check response:', response.data);
-        this.duplicateExists = response.data;
-      }).catch(error => {
-        console.error('Duplicate check error:', error);
-        this.duplicateExists = false;
-      });
-    }
+    // checkDuplicateLocation(name, countyId, lat, long) {
+    //   console.log('Checking duplicate:', name, countyId, lat, long);
+    //   axios.get('/location/check-duplicate', {
+    //     params: {locationName: name, countyId, latitude: lat, longitude: long}
+    //   }).then(response => {
+    //     console.log('Duplicate check response:', response.data);
+    //     this.duplicateExists = response.data;
+    //   }).catch(error => {
+    //     console.error('Duplicate check error:', error);
+    //     this.duplicateExists = false;
+    //   });
+    // }
 
 
   }

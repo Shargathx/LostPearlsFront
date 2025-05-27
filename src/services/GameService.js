@@ -8,5 +8,15 @@ export default {
                 gameId: gameId
             }
         })
+    },
+
+    sendPutGameRequest(gameId, game) {
+        return axios.put('/game', null, {
+            params: {
+                gameId: gameId,
+                game: game
+            }
+        })
     }
 }
+

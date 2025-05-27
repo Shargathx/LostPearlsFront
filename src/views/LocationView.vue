@@ -113,7 +113,7 @@
       <!-- Right side: Map -->
       <div class="col-md-6 mt-3 mt-md-0">
         <MapPicker
-            :zoom-level="locationInfo.zoomLevel"
+            :zoom-level="game.zoomLevel"
             :latitude="parseFloat(locationInfo.latitude) || defaultLat"
             :longitude="parseFloat(locationInfo.longitude) || defaultLng"
             @update:latitude="setLocationInfoLatitude"

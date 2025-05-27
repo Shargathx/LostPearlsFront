@@ -53,7 +53,7 @@ export default {
     });
 
     this.map.on('click', (e) => {
-      const { lat, lng } = e.latlng;
+      const {lat, lng} = e.latlng;
       this.setMarker(lat, lng);
       this.$emit('update:latitude', parseFloat(lat.toFixed(18)));
       this.$emit('update:longitude', parseFloat(lng.toFixed(18)));
@@ -67,7 +67,12 @@ export default {
       const [lat, lng, zoom] = this.coordinates;
       if (this.mapReady && this.isValidLatLng(lat, lng)) {
         this.setMarker(lat, lng);
-        this.map.setView([lat, lng], zoom);
+        this.map.flyTo([lat, lng], zoom), {
+          animate: true,
+          duration: 1.0,
+          easeLinearity: 0.25
+        }
+
       }
     }
   },

@@ -3,10 +3,8 @@
     <h1 class="mb-4">Location Details</h1>
 
     <div class="row">
-      <!-- Left side: Form fields -->
       <div class="col-md-6">
         <div class="row g-3">
-          <!-- Row 1 -->
           <div class="col-12">
             <CountiesDropdown
                 :selectedCountyId="locationInfo.countyId"
@@ -24,7 +22,6 @@
             />
           </div>
 
-          <!-- Row 2 -->
           <div class="col-6">
             <label for="longitude" class="form-label">Longitude</label>
             <input

@@ -52,12 +52,12 @@ export default {
       this.$emit('update:zoomLevel', zoomLevel);
     });
 
-    this.map.on('click', (e) => {
-      const {lat, lng} = e.latlng;
-      this.setMarker(lat, lng);
-      this.$emit('update:latitude', parseFloat(lat.toFixed(18)));
-      this.$emit('update:longitude', parseFloat(lng.toFixed(18)));
-    });
+    // this.map.on('click', (e) => {
+    //   const {lat, lng} = e.latlng;
+    //   this.setMarker(lat, lng);
+    //   this.$emit('update:latitude', parseFloat(lat.toFixed(18)));
+    //   this.$emit('update:longitude', parseFloat(lng.toFixed(18)));
+    // });
 
     this.mapReady = true;
   },

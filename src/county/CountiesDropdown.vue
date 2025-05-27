@@ -5,7 +5,7 @@
             @change="handleCountyDropdownChange"
             id="countyId" class="form-select">
 
-      <option disabled value="">Please select a county</option>
+      <option disabled value="0">Please select a county</option>
       <option v-for="county in counties" :key="county.id" :value="county.id">{{ county.name }}</option>
     </select>
   </div>

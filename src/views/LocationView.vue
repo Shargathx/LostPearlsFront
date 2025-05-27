@@ -184,8 +184,8 @@ export default {
           throw new Error("Failed to fetch county details from server");
         const county = await response.json();
 
-        this.locationInfo.latitude = county.latitude;
-        this.locationInfo.longitude = county.longitude;
+        this.locationInfo.latitude = county.latfield;
+        this.locationInfo.longitude = county.longfield;
         this.locationInfo.zoomLevel = county.zoomLevel || 10;
       } catch (error) {
         console.error("Error fetching county details:", error);

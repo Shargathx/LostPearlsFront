@@ -10,13 +10,13 @@ export default {
         })
     },
 
-    sendPutGameRequest(gameId, game) {
-        return axios.put('/game', null, {
+    sendPatchGameRequest(gameId) {
+        return axios.patch('/game', null, {
             params: {
                 gameId: gameId,
-                game: game
             }
         })
-    }
+    },
+
 }
 

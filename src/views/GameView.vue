@@ -23,8 +23,13 @@
       </div>
     </div>
     <div class="row">
-      <div class="col justify-content-center">
+      <div  v-if="game.gameStatus === 'GA' " class="col justify-content-center">
         <button @click="startAndUpdateGame" type="button" class="btn btn-outline-success">START</button>
+      </div>
+      <div v-if="game.gameStatus === 'GS' " class="col justify-content-center">
+        <h5>{{ game.question }}</h5>
+        <input v-model="game.answer" placeholder="Ideaalis v6iks vastuse siia kirjutada" />
+        <button @click="submitAnswer">Vasta</button>
       </div>
     </div>
   </div>
@@ -53,6 +58,7 @@ export default {
       userId: '',
       displayTeaserInfo: false,
       displayExtendedInfo: false,
+      isAdded: true,
 
       game: {
         countyName: '',
@@ -107,13 +113,16 @@ export default {
     startAndUpdateGame() {
       this.game.gameStatus = 'GS';
       this.game.gameStartMilliseconds = Date.now();
-      GameService.sendPutGameRequest(this.gameId, this.game)
+      GameService.sendPatchGameRequest(this.gameId, this.game)
           .then(response => {
             this.game = response.data;
             this.refreshGameView()
           })
           .catch(error => this.someDataBlockErrorResponseObject = error.response.data)
     },
+    addGame(){
+      axiospo
+    }
 
     isGameComplete() {
       return this.game.gameStatus === 'GC'
@@ -121,7 +130,10 @@ export default {
     refreshGameView() {
       // this.getGame() or
       this.$forceUpdate()
-    }
+    },
+    submitAnswer() {
+
+    },
   },
 
   beforeMount() {

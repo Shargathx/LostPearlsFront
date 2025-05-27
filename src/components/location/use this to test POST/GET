@@ -1,0 +1,62 @@
+sendPostAddLocationRequest() {
+  console.log("SEND REQUEST FUNCTION TRIGGERED");
+
+  if (!this.validateAllCoordinates()) {
+    console.warn("Coordinates not valid");
+    return;
+  }
+
+  const userId = 1;
+  const payloadLongLat = {
+    ...this.locationInfo,
+    latitude: parseFloat(this.locationInfo.latitude),
+    longitude: parseFloat(this.locationInfo.longitude),
+  };
+
+  console.log("Sending payload:", payloadLongLat);
+
+  axios.post(`/location?userId=${userId}`, payloadLongLat)
+    .then(response => {
+      console.log("POST response data:", response.data);
+
+      // Clear the fields briefly
+      this.locationInfo = {
+        countyId: 0,
+        locationName: "",
+        zoomlevel: 12,
+        longitude: "",
+        latitude: "",
+        teaser: "",
+        extendedInfo: "",
+        question: "",
+        answer: "",
+      };
+
+      // Show success message (optional)
+      this.successMessage = "Location added successfully! Loading data...";
+
+      // After clearing, fetch the saved data via GET using the returned locationId
+      const locationId = response.data.locationId || response.data.id; // adapt to your response
+
+      if (locationId) {
+        axios.get(`/location/${locationId}`)
+          .then(getResponse => {
+            this.locationInfo = getResponse.data;
+            this.successMessage = "Location loaded successfully!";
+            setTimeout(() => (this.successMessage = ""), 3000);
+          })
+          .catch(error => {
+            console.error("Error fetching saved location:", error);
+            this.errorMessage = "Error loading saved location";
+            setTimeout(() => (this.errorMessage = ""), 3000);
+          });
+      } else {
+        this.errorMessage = "No location ID returned from POST";
+        setTimeout(() => (this.errorMessage = ""), 3000);
+      }
+    })
+    .catch(error => {
+      this.errorMessage = "Error adding location";
+      setTimeout(() => (this.errorMessage = ""), 3000);
+    });
+}

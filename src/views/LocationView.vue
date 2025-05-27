@@ -16,7 +16,12 @@
 
           <div class="col-12">
             <label for="locationName" class="form-label">Location Name</label>
-            <input v-model="locationInfo.locationName" type="text" id="locationName" class="form-control"/>
+            <input
+                v-model="locationInfo.locationName"
+                type="text"
+                id="locationName"
+                class="form-control"
+            />
           </div>
 
           <!-- Row 2 -->
@@ -44,29 +49,47 @@
 
           <div class="col-12">
             <div class="m-3">
-              <label>
-                zoom level:
-              </label>
-              <input v-model="locationInfo.zoomLevel" type="number">
+              <label>zoom level:</label>
+              <input v-model.number="locationInfo.zoomLevel" type="number"/>
             </div>
 
             <label for="teaserInfo" class="form-label">Teaser Info</label>
-            <textarea v-model="locationInfo.teaser" id="teaserInfo" rows="2" class="form-control"></textarea>
+            <textarea
+                v-model="locationInfo.teaser"
+                id="teaserInfo"
+                rows="2"
+                class="form-control"
+            ></textarea>
           </div>
 
           <div class="col-12">
             <label for="extendedInfo" class="form-label">Extended Info</label>
-            <textarea v-model="locationInfo.extendedInfo" id="extendedInfo" rows="2" class="form-control"></textarea>
+            <textarea
+                v-model="locationInfo.extendedInfo"
+                id="extendedInfo"
+                rows="2"
+                class="form-control"
+            ></textarea>
           </div>
 
           <div class="col-12">
             <label for="question" class="form-label">Question</label>
-            <input v-model="locationInfo.question" type="text" id="question" class="form-control"/>
+            <input
+                v-model="locationInfo.question"
+                type="text"
+                id="question"
+                class="form-control"
+            />
           </div>
 
           <div class="col-12">
             <label for="answer" class="form-label">Answer</label>
-            <input v-model="locationInfo.answer" type="text" id="answer" class="form-control"/>
+            <input
+                v-model="locationInfo.answer"
+                type="text"
+                id="answer"
+                class="form-control"
+            />
           </div>
 
           <div v-if="successMessage" class="alert alert-success text-center">
@@ -79,7 +102,12 @@
             This location already exists with the same name and coordinates.
           </div>
           <div class="col-12 text-end mt-3">
-            <button :disabled="duplicateExists" @click="sendPostAddLocationRequest" class="btn btn-primary">Submit
+            <button
+                :disabled="duplicateExists"
+                @click="sendPostAddLocationRequest"
+                class="btn btn-primary"
+            >
+              Submit
             </button>
           </div>
         </div>
@@ -89,8 +117,8 @@
       <div class="col-md-6 mt-3 mt-md-0">
         <MapPicker
             :zoom-level="locationInfo.zoomLevel"
-            :latitude="Number(locationInfo.latitude)"
-            :longitude="Number(locationInfo.longitude)"
+            :latitude="parseFloat(locationInfo.latitude) || defaultLat"
+            :longitude="parseFloat(locationInfo.longitude) || defaultLng"
             @update:latitude="setLocationInfoLatitude"
             @update:longitude="val => locationInfo.longitude = val"
             @update:zoomLevel="setLocationInfoZoomLevel"
@@ -100,81 +128,76 @@
   </div>
 </template>
 
-
 <script>
-
 import axios from "axios";
 import CountiesDropdown from "@/county/CountiesDropdown.vue";
 import MapPicker from "@/components/MapPicker.vue";
 
 export default {
-  name: 'LocationView',
+  name: "LocationView",
   components: {MapPicker, CountiesDropdown},
+
   data() {
     return {
       zoomLevel: 12,
       locationInfo: {
         countyId: 0,
-        locationName: '',
+        locationName: "",
         zoomLevel: 12,
         longitude: 24.7536,
-        latitude: 59.4370,
-        teaser: '',
-        extendedInfo: '',
-        question: '',
-        answer: ''
+        latitude: 59.437,
+        teaser: "",
+        extendedInfo: "",
+        question: "",
+        answer: "",
       },
 
       duplicateExists: false,
-      successMessage: '',
-      errorMessage:'',
+      successMessage: "",
+      errorMessage: "",
 
       counties: [],
       userId: 0,
       locationId: 0,
 
       coordinatesErrorMessage: {
-        latitude: '',
-        longitude: ''
+        latitude: "",
+        longitude: "",
       },
-
-    }
+    };
   },
 
-  // watch: {
-  //   locationInfo: {
-  //     handler: _.debounce(function (newVal) {
-  //       const {locationName, countyId, latitude, longitude} = newVal;
-  //       if (locationName && countyId && latitude && longitude) {
-  //         const lat = round(parseFloat(latitude));
-  //         const long = round(parseFloat(longitude));
-  //      //   this.checkDuplicateLocation(locationName, countyId, lat, long);
-  //       } else {
-  //         this.duplicateExists = false;
-  //       }
-  //     }, 300), // wait 300ms after changes stop
-  //     deep: true
-  //   }
-  // },
 
   methods: {
 
-    handleNewCountySelected(countyId) {
-      this.locationInfo.countyId = countyId
-      // TODO käivita teenus mis toob ära county kaardi andmed (long, lat, zoom)
-      // TODO vastusest saadud tulemusest update locationInfo objektis neid andmeid
+    // handleNewCountySelected(countyId) {
+    //   this.locationInfo.countyId = countyId
+    //   // TODO käivita teenus mis toob ära county kaardi andmed (long, lat, zoom)
+    //   // TODO vastusest saadud tulemusest update locationInfo objektis neid andmeid
+    // },
+
+    async handleNewCountySelected(countyId) {
+      this.locationInfo.countyId = countyId;
+      try {
+        const response = await fetch(`/county/${countyId}`);
+        if (!response.ok)
+          throw new Error("Failed to fetch county details from server");
+        const county = await response.json();
+
+        this.locationInfo.latitude = county.latfield;
+        this.locationInfo.longitude = county.longfield;
+        this.locationInfo.zoomLevel = county.zoomLevel || 10;
+      } catch (error) {
+        console.error("Error fetching county details:", error);
+      }
     },
 
     setLocationInfoLatitude(latitude) {
-      this.locationInfo.latitude = latitude
+      this.locationInfo.latitude = latitude;
     },
 
     setLocationInfoZoomLevel(zoomLevel) {
-      this.locationInfo.zoomLevel = zoomLevel
-    },
-
-    getAllCounties() {
-
+      this.locationInfo.zoomLevel = zoomLevel;
     },
 
     sendPostAddLocationRequest() {
@@ -185,56 +208,43 @@ export default {
         return;
       }
 
-      const userId = 1
+      const userId = 1;
       const payloadLongLat = {
         ...this.locationInfo,
         latitude: parseFloat(this.locationInfo.latitude),
         longitude: parseFloat(this.locationInfo.longitude),
       };
 
-      console.log('Sending payload:', payloadLongLat);
+      console.log("Sending payload:", payloadLongLat);
 
       axios.post(`/location?userId=${userId}`, payloadLongLat)
-          .then(response => {
-            console.log('POST response data:', response.data);  // Add this line!
-            this.successMessage = 'Location added successfully!';
+          .then((response) => {
+            console.log("POST response data:", response.data); // Add this line!
+            this.successMessage = "Location added successfully!";
 
             setTimeout(() => {
-              this.successMessage = '';
+              this.successMessage = "";
             }, 3000);
-
-            //     const newLocationId = response.data.locationId;
-            //   this.getAddedLocation(newLocationId);
           })
-          .catch(error => {
-            this.errorMessage = 'Asukoha lisamisel tekkis viga'
+          .catch((error) => {
+            this.errorMessage = "Asukoha lisamisel tekkis viga";
             setTimeout(() => {
-              this.errorMessage = '';
+              this.errorMessage = "";
             }, 3000);
           });
     },
 
-
-    getAddedLocation(locationId) {
-      if (!locationId) {
-        console.error('getAddedLocation called without a valid locationId:', locationId);
-        return; // or return Promise.reject() if you want to propagate an error
-      }
-      axios.get(`/location/${locationId}`) // <-- use backticks for template string
-          .then(response => console.log('Fetched location:', response.data))
-          .catch(error => console.error('Error fetching location:', error));
-    },
-
-
     isValidCoordinate(value, type) {
-      const label = type === 'lat' ? 'Latitude' : 'Longitude';
+      const label = type === "lat" ? "Latitude" : "Longitude";
       const num = parseFloat(value);
       if (isNaN(num)) return `${label} must be a number.`;
 
-      if (type === 'lat' && (num < -90 || num > 90)) return 'Latitude must be between -90 and 90.';
-      if (type === 'long' && (num < -180 || num > 180)) return 'Longitude must be between -180 and 180.';
+      if (type === "lat" && (num < -90 || num > 90))
+        return "Latitude must be between -90 and 90.";
+      if (type === "long" && (num < -180 || num > 180))
+        return "Longitude must be between -180 and 180.";
 
-      const decimalPart = value.toString().split('.')[1];
+      const decimalPart = value.toString().split(".")[1];
       if (!decimalPart || decimalPart.length < 3) {
         return `${label} must have at least 3 decimal places.`;
       }
@@ -242,34 +252,23 @@ export default {
       return true;
     },
 
-
     validateAllCoordinates() {
-      const latValidation = this.isValidCoordinate(this.locationInfo.latitude, 'lat');
-      const longValidation = this.isValidCoordinate(this.locationInfo.longitude, 'long');
+      const latValidation = this.isValidCoordinate(
+          this.locationInfo.latitude,
+          "lat"
+      );
+      const longValidation = this.isValidCoordinate(
+          this.locationInfo.longitude,
+          "long"
+      );
 
-      this.coordinatesErrorMessage.latitude = latValidation === true ? '' : latValidation;
-      this.coordinatesErrorMessage.longitude = longValidation === true ? '' : longValidation;
+      this.coordinatesErrorMessage.latitude =
+          latValidation === true ? "" : latValidation;
+      this.coordinatesErrorMessage.longitude =
+          longValidation === true ? "" : longValidation;
 
       return latValidation === true && longValidation === true;
     },
-
-
-    // checkDuplicateLocation(name, countyId, lat, long) {
-    //   console.log('Checking duplicate:', name, countyId, lat, long);
-    //   axios.get('/location/check-duplicate', {
-    //     params: {locationName: name, countyId, latitude: lat, longitude: long}
-    //   }).then(response => {
-    //     console.log('Duplicate check response:', response.data);
-    //     this.duplicateExists = response.data;
-    //   }).catch(error => {
-    //     console.error('Duplicate check error:', error);
-    //     this.duplicateExists = false;
-    //   });
-    // }
-
-
-  }
-
-
-}
+  },
+};
 </script>

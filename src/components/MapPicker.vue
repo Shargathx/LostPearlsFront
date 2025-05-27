@@ -1,16 +1,18 @@
 <template>
-  <div id="map" style="height: 600px;"></div>
+  <div>
+    <div id="map" style="height: 500px;"></div>
+  </div>
 </template>
 
 <script>
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-// Fix the broken default icon
+// Set default marker icons (so they don't 404)
 L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  iconRetinaUrl: '/leaflet/marker-icon-2x.png',
+  iconUrl: '/leaflet/marker-icon.png',
+  shadowUrl: '/leaflet/marker-shadow.png',
 });
 
 export default {
@@ -25,21 +27,19 @@ export default {
     return {
       map: null,
       marker: null,
+      mapReady: false
     };
   },
-
 
   mounted() {
     const defaultLat = 58.7;
     const defaultLng = 25.0;
 
-    const isValidNumber = (value) =>
-        typeof value === 'number' && !isNaN(value);
+    const lat = this.isValidNumber(this.latitude) ? this.latitude : defaultLat;
+    const lng = this.isValidNumber(this.longitude) ? this.longitude : defaultLng;
+    const zoom = this.zoomLevel || 10;
 
-    const lat = isValidNumber(this.latitude) ? this.latitude : defaultLat;
-    const lng = isValidNumber(this.longitude) ? this.longitude : defaultLng;
-
-    this.map = L.map('map').setView([lat, lng], this.zoomLevel);
+    this.map = L.map('map').setView([lat, lng], zoom);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
@@ -47,48 +47,65 @@ export default {
 
     this.setMarker(lat, lng);
 
-
     this.map.on('zoomend', () => {
       const zoomLevel = this.map.getZoom();
       this.$emit('update:zoomLevel', zoomLevel);
     });
 
     this.map.on('click', (e) => {
-      const { lat, lng } = e.latlng;
+      const {lat, lng} = e.latlng;
       this.setMarker(lat, lng);
       this.$emit('update:latitude', parseFloat(lat.toFixed(18)));
       this.$emit('update:longitude', parseFloat(lng.toFixed(18)));
     });
-  },
 
+    this.mapReady = true;
+  },
 
   watch: {
-    latitude(newLat) {
-      this.updateMarkerPosition(newLat, this.longitude);
-    },
-    longitude(newLng) {
-      this.updateMarkerPosition(this.latitude, newLng);
-    },
-    zoomLevel(newLevel) {
-      this.map.setZoom(newLevel)
-    },
+    coordinates() {
+      const [lat, lng, zoom] = this.coordinates;
+      if (this.mapReady && this.isValidLatLng(lat, lng)) {
+        this.setMarker(lat, lng);
+        this.map.flyTo([lat, lng], zoom), {
+          animate: true,
+          duration: 1.0,
+          easeLinearity: 0.25
+        }
 
+      }
+    }
   },
 
+  computed: {
+    coordinates() {
+      return [this.latitude, this.longitude, this.zoomLevel];
+    }
+  },
 
   methods: {
+    isValidNumber(value) {
+      return typeof value === 'number' && !isNaN(value);
+    },
+
+    isValidLatLng(lat, lng) {
+      return (
+          this.isValidNumber(lat) &&
+          this.isValidNumber(lng) &&
+          lat >= -90 && lat <= 90 &&
+          lng >= -180 && lng <= 180
+      );
+    },
 
     setMarker(lat, lng) {
+      if (!this.isValidLatLng(lat, lng)) {
+        console.warn("Invalid lat/lng passed to setMarker:", lat, lng);
+        return;
+      }
       if (this.marker) {
         this.marker.setLatLng([lat, lng]);
       } else {
         this.marker = L.marker([lat, lng]).addTo(this.map);
-      }
-    },
-    updateMarkerPosition(lat, lng) {
-      if (lat !== null && lng !== null) {
-        this.setMarker(lat, lng);
-        this.map.panTo([lat, lng]);
       }
     }
   }
@@ -98,10 +115,9 @@ export default {
 <style scoped>
 #map {
   width: 100%;
-  height: 500px; /* or whatever size you're using */
-  border: 5px solid #ccc; /* Light gray border */
-  border-radius: 8px; /* Optional: rounded corners */
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Optional: subtle shadow */
+  height: 500px;
+  border: 5px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 </style>
-

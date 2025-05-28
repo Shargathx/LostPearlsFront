@@ -23,12 +23,12 @@
       </div>
     </div>
     <div class="row">
-      <div  v-if=isGameAdded class="col justify-content-center">
+      <div v-if=isGameAdded class="col justify-content-center">
         <button @click="startGame" type="button" class="btn btn-outline-success">START</button>
       </div>
       <div v-if=isGameStarted class="col justify-content-center">
         <h5>{{ game.question }}</h5>
-        <input v-model="game.answer" placeholder="Ideaalis v6iks vastuse siia kirjutada" />
+        <input v-model="game.answer" placeholder="Ideaalis v6iks vastuse siia kirjutada"/>
         <button @click="submitAnswer">Vasta</button>
       </div>
     </div>
@@ -41,7 +41,6 @@
 
 <script>
 
-import axios from "axios";
 import GameService from "@/services/GameService";
 import {useRoute} from "vue-router";
 import TeaserView from "@/components/location/TeaserView.vue";
@@ -84,7 +83,7 @@ export default {
 
       hints: [
         {
-          hindId: '',
+          hintId: '',
           hint: '',
         }
       ],
@@ -123,7 +122,7 @@ export default {
 
     startGame() {
       GameService.sendPatchGameRequest(this.gameId)
-          .then(() => this.getGame() )
+          .then(() => this.getGame())
           .catch(() => Navigation.navigateToErrorView())
     },
 
@@ -171,7 +170,6 @@ export default {
     this.getGame()
   },
 }
-
 
 
 </script>

@@ -24,9 +24,9 @@ export default {
   components: {LocationsTable},
   data() {
     return {
-      //todo uuri kas Martinil tekib session storage
-      userId: 1,
-      roleName: '',
+
+      userId: Number(sessionStorage.getItem("userId")),
+      roleName: sessionStorage.getItem("roleName"),
 
       userLocations: [
         {

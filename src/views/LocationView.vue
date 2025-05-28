@@ -67,8 +67,8 @@
                 id="teaserInfo"
                 rows="2"
                 class="form-control"
-                :disabled="isViewMode"
-            ></textarea>
+                :disabled="isViewMode">
+            </textarea>
           </div>
 
           <div class="col-12">
@@ -78,19 +78,20 @@
                 id="extendedInfo"
                 rows="2"
                 class="form-control"
-                :disabled="isViewMode"
-            ></textarea>
+                :disabled="isViewMode">
+            </textarea>
           </div>
 
           <div class="col-12">
             <label for="question" class="form-label">Question</label>
-            <input
+            <textarea
                 v-model="locationInfo.question"
                 type="text"
                 id="question"
                 class="form-control"
-                :disabled="isViewMode"
-            />
+                :disabled="isViewMode">
+
+            </textarea>
           </div>
 
           <div class="col-12">
@@ -100,8 +101,7 @@
                 type="text"
                 id="answer"
                 class="form-control"
-                :disabled="isViewMode"
-            />
+                :disabled="isViewMode"/>
           </div>
 
           <div v-if="successMessage" class="alert alert-success text-center">
@@ -167,20 +167,21 @@ import {useRoute} from "vue-router";
 import Modal from "@/components/modal/Modal.vue";
 import LocationKeywordsTable from "@/components/location/LocationKeywordsTable.vue";
 
+
 export default {
   name: "LocationView",
   components: {
     LocationKeywordsTable,
     Modal,
     MapPicker,
-    CountiesDropdown,
+    CountiesDropdown
   },
 
   data() {
     return {
       isEditMode: true, // start in edit mode
       isViewMode: false,
-      userId: 1,
+      userId: Number(sessionStorage.getItem("userId")),
       locationId: 0,
 
       zoomLevel: 12,
@@ -286,7 +287,7 @@ export default {
     },
 
     sendPutLocationRequest() {
-      if (!this.locationInfoChanged()) {
+      if (!this.locationInfoChanged) {
         alert("No changes made");
         return;
       }
@@ -333,6 +334,12 @@ export default {
       this.successMessage = "";
       this.errorMessage = "";
     },
+  },
+
+  autoResize(event) {
+    const textarea = event.target
+    textarea.style.height = 'auto'
+    textarea.style.height = textarea.scrollHeight + 'px'
   },
 
   beforeMount() {

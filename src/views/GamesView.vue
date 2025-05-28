@@ -17,16 +17,13 @@
       </div>
       <div class="nav-right">
         <button @click="goToProfile">My Profile</button>
-        <button @click="logout">Log Out</button>
+        <button @click="">Log Out</button>
       </div>
     </nav>
 
-    <!-- Main Content -->
     <section class="content-left">
-      <!-- Games Completed Stats Table -->
       <section class="games-completed">
         <h2>Games Completed (Stats)</h2>
-        <!-- Placeholder table -->
         <table>
           <thead>
           <tr>
@@ -63,7 +60,12 @@
               @click="openAddLocation(index)"
           >
             <div class="thumbnail">
-              <img :src="field.image || placeholderImage" alt="Thumbnail"/>
+              <img
+                  src="actual-image.jpg"
+                  onerror="this.onerror=null; this.src='https://cdn3.emoji.gg/emojis/82146-skulltoppray.png';"
+                  style="max-width: 100%; height: auto;"
+                  alt="image"
+              />
             </div>
             <div class="info">
               <p><strong>Name:</strong> {{ field.name || 'Click to add' }}</p>
@@ -95,6 +97,7 @@
 import {onMounted, ref} from 'vue'
 import StaticMapPicker from "@/components/StaticMapPicker.vue";
 import GameLocationsGrid from "@/components/game/GameLocationsGrid.vue";
+import LogOutModal from "@/components/modal/LogOutModal.vue";
 
 // Nav buttons placeholders
 const navButtons = ref([
@@ -116,7 +119,7 @@ const initiateFields = ref([
   {name: '', county: '', image: ''},
 ])
 
-const placeholderImage = 'https://via.placeholder.com/80x60?text=No+Image'
+const placeholderImage = 'https://cdn3.emoji.gg/emojis/82146-skulltoppray.png'
 
 // Played games from backend (dummy fetch)
 const playedGames = ref([])

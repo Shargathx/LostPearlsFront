@@ -23,10 +23,10 @@
       </div>
     </div>
     <div class="row">
-      <div  v-if="game.gameStatus === 'GA' " class="col justify-content-center">
-        <button @click="startAndUpdateGame" type="button" class="btn btn-outline-success">START</button>
+      <div  v-if=isGameAdded class="col justify-content-center">
+        <button @click="startGame" type="button" class="btn btn-outline-success">START</button>
       </div>
-      <div v-if="game.gameStatus === 'GS' " class="col justify-content-center">
+      <div v-if=isGameStarted class="col justify-content-center">
         <h5>{{ game.question }}</h5>
         <input v-model="game.answer" placeholder="Ideaalis v6iks vastuse siia kirjutada" />
         <button @click="submitAnswer">Vasta</button>
@@ -44,22 +44,24 @@
 import axios from "axios";
 import GameService from "@/services/GameService";
 import {useRoute} from "vue-router";
-import MapPicker from "@/components/MapPicker.vue";
 import TeaserView from "@/components/location/TeaserView.vue";
 import LocationImage from "@/components/location/LocationImage.vue";
 import GameMap from "@/components/GameMap.vue";
-import CountyService from "@/services/CountyService";
+import GameStartedViewView from "@/components/game/GameStartedView.vue";
+import Navigation from "@/navigation/Navigation";
 
 export default {
   name: "GameView",
-  components: {LocationImage, TeaserView, MapPicker, GameMap},
+  components: {GameStartedView: GameStartedViewView, LocationImage, TeaserView, GameMap},
   data() {
     return {
+      isGameAdded: false,
+      isGameStarted: false,
+      isGameComplete: false,
       gameId: Number(useRoute().query.gameId),
       userId: '',
       displayTeaserInfo: false,
       displayExtendedInfo: false,
-      isAdded: true,
 
       game: {
         countyName: '',
@@ -77,8 +79,16 @@ export default {
         imageData: '',
         lat: 58.6662,
         lng: 25.5824,
-        zoomLevel: 0
+        zoomLevel: 0,
       },
+
+      hints: [
+        {
+          hindId: '',
+          hint: '',
+        }
+      ],
+
       errorResponse: {
         message: '',
         errorCode: 0
@@ -86,7 +96,6 @@ export default {
     }
   },
   methods: {
-
 
 
     getGame() {
@@ -97,10 +106,11 @@ export default {
 
     handleGetGameResponse(response) {
       this.game = response.data;
-      this.displayTeaserInfo = !this.isGameComplete()
-      this.displayExtendedInfo = this.isGameComplete()
-      this.game.lat = parseFloat(response.data.lat);
-      this.game.lng = parseFloat(response.data.lng);
+      this.isGameAdded = this.game.gameStatus === 'GA'
+      this.isGameStarted = this.game.gameStatus === 'GS'
+      this.isGameComplete = this.game.gameStatus === 'GC'
+      this.displayTeaserInfo = !this.isGameComplete
+      this.displayExtendedInfo = this.isGameComplete
 
     },
     setGameLatitude(latitude) {
@@ -111,36 +121,57 @@ export default {
       this.game.zoomLevel = zoomLevel;
     },
 
-    startAndUpdateGame() {
-      this.game.gameStatus = 'GS';
-      this.game.gameStartMilliseconds = Date.now();
-      GameService.sendPatchGameRequest(this.gameId, this.game)
-          .then(response => {
-            this.game = response.data;
-            this.refreshGameView()
-          })
+    startGame() {
+      GameService.sendPatchGameRequest(this.gameId)
+          .then(() => this.getGame() )
+          .catch(() => Navigation.navigateToErrorView())
+    },
+
+    handleStartGameResponse() {
+      this.isGameStarted = true
+      this.getGame()
+    },
+
+    addGame() {
+      GameService.sendPostGameRequest(this.game.locationId)
+          .then(response => this.someDataBlockResponseObject = response.data)
           .catch(error => this.someDataBlockErrorResponseObject = error.response.data)
     },
-    addGame(){
-      axiospo
-    }
 
-    isGameComplete() {
-      return this.game.gameStatus === 'GC'
-    },
     refreshGameView() {
       // this.getGame() or
       this.$forceUpdate()
     },
-    submitAnswer() {
 
+    submitAnswer() {
     },
+
+    startGameTimer() {
+      this.timerInterval = setInterval(() => {
+        this.gameElapsedMilliseconds = Date.now() - this.game.gameStartMilliseconds;
+
+        // Offer a hint every 10 minutes (600,000 ms)
+        if (this.gameElapsedMilliseconds >= this.nextHintTime) {
+          this.askForHint();
+          this.nextHintTime += 600000;
+        }
+      }, 1000);
+    },
+
+    askForHint() {
+      if (confirm("Kas sa soovid vihjet?")) {
+        GameService.getHint(this.gameId)
+            .then(response => this.game.hint = response.data.hint)
+            .catch(error => console.error("Hint fetch error:", error.response));
+      }
+    }
   },
 
   beforeMount() {
     this.getGame()
-  }
+  },
 }
+
 
 
 </script>

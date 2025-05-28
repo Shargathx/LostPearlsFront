@@ -11,12 +11,23 @@ export default {
     },
 
     sendPatchGameRequest(gameId) {
-        return axios.patch('/game', null, {
+        return axios.patch('/game/started', null, {
             params: {
-                gameId: gameId,
+                gameId: gameId
+
+            }
+        })
+    },
+
+
+    sendPostGameRequest(locationId, userId) {
+        return axios.post('/game', null, {
+            params: {
+                locationId: locationId,
+                userId: userId
+
             }
         })
     },
 
 }
-

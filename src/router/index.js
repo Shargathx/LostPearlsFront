@@ -49,6 +49,7 @@ const routes = [
         name: 'locationIdRoute',
         component: LocationView
     }
+
 ]
 
 const router = createRouter({

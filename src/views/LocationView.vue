@@ -11,6 +11,7 @@
             <CountiesDropdown
                 :selectedCountyId="locationInfo.countyId"
                 @event-new-county-selected="handleNewCountySelected"
+                :disabled="!isEditing"
             />
           </div>
 
@@ -21,6 +22,7 @@
                 type="text"
                 id="locationName"
                 class="form-control"
+                :disabled="!isEditing"
             />
           </div>
 
@@ -33,6 +35,7 @@
                 id="longitude"
                 placeholder="näidis: 59.019"
                 class="form-control"
+                :disabled="!isEditing"
             />
           </div>
 
@@ -44,13 +47,18 @@
                 id="latitude"
                 placeholder="näidis: 25.314"
                 class="form-control"
+                :disabled="!isEditing"
             />
           </div>
 
           <div class="col-12">
             <div class="m-3">
               <label>zoom level:</label>
-              <input v-model.number="locationInfo.zoomLevel" type="number"/>
+              <input
+                  v-model.number="locationInfo.zoomlevel"
+                  type="number"
+                  :disabled="!isEditing"
+              />
             </div>
 
             <label for="teaserInfo" class="form-label">Teaser Info</label>
@@ -59,6 +67,7 @@
                 id="teaserInfo"
                 rows="2"
                 class="form-control"
+                :disabled="!isEditing"
             ></textarea>
           </div>
 
@@ -69,6 +78,7 @@
                 id="extendedInfo"
                 rows="2"
                 class="form-control"
+                :disabled="!isEditing"
             ></textarea>
           </div>
 
@@ -79,6 +89,7 @@
                 type="text"
                 id="question"
                 class="form-control"
+                :disabled="!isEditing"
             />
           </div>
 
@@ -89,6 +100,7 @@
                 type="text"
                 id="answer"
                 class="form-control"
+                :disabled="!isEditing"
             />
           </div>
 
@@ -101,8 +113,13 @@
           <div v-if="duplicateExists" class="alert alert-warning">
             This location already exists with the same name and coordinates.
           </div>
+
           <div class="col-12 text-end mt-3">
+            <button v-if="!isEditing" @click="isEditing = true" class="btn btn-secondary">
+              Edit
+            </button>
             <button
+                v-else
                 :disabled="duplicateExists"
                 @click="sendPostAddLocationRequest"
                 class="btn btn-primary"
@@ -130,12 +147,13 @@
       <!-- Right side: Map -->
       <div class="col-md-6 mt-3 mt-md-0">
         <MapPicker
-            :zoom-level="locationInfo.zoomLevel"
+            :zoom-level="locationInfo.zoomlevel"
             :latitude="parseFloat(locationInfo.latitude) || defaultLat"
             :longitude="parseFloat(locationInfo.longitude) || defaultLng"
             @update:latitude="setLocationInfoLatitude"
             @update:longitude="val => locationInfo.longitude = val"
             @update:zoomLevel="setLocationInfoZoomLevel"
+            :disabled="!isEditing"
         />
       </div>
     </div>
@@ -149,17 +167,20 @@ import MapPicker from "@/components/MapPicker.vue";
 import Modal from "@/components/modal/Modal.vue";
 import LocationKeywordsTable from "@/components/location/LocationKeywordsTable.vue";
 
+
 export default {
   name: "LocationView",
   components: {LocationKeywordsTable, Modal, MapPicker, CountiesDropdown},
 
   data() {
     return {
+      isEditing: true, // start in editing mode
+
       zoomLevel: 12,
       locationInfo: {
         countyId: 0,
         locationName: "",
-        zoomLevel: 12,
+        zoomlevel: 12,
         longitude: 24.7536,
         latitude: 59.437,
         teaser: "",
@@ -181,24 +202,25 @@ export default {
         longitude: "",
       },
 
+      defaultLat: 59.437,
+      defaultLng: 24.7536,
+
       keywords:[
         {
           answerId: 0,
           keyword: ''
         }
       ]
-
     };
   },
 
-
   methods: {
-
-    // handleNewCountySelected(countyId) {
-    //   this.locationInfo.countyId = countyId
-    //   // TODO käivita teenus mis toob ära county kaardi andmed (long, lat, zoom)
-    //   // TODO vastusest saadud tulemusest update locationInfo objektis neid andmeid
-    // },
+    updateLocationInfo(responseData) {
+      this.locationInfo = {
+        ...this.locationInfo,
+        ...responseData,
+      };
+    },
 
     async handleNewCountySelected(countyId) {
       this.locationInfo.countyId = countyId;
@@ -210,7 +232,7 @@ export default {
 
         this.locationInfo.latitude = county.latfield;
         this.locationInfo.longitude = county.longfield;
-        this.locationInfo.zoomLevel = county.zoomLevel || 10;
+        this.locationInfo.zoomlevel = county.zoomLevel || 10;
       } catch (error) {
         console.error("Error fetching county details:", error);
       }
@@ -221,7 +243,7 @@ export default {
     },
 
     setLocationInfoZoomLevel(zoomLevel) {
-      this.locationInfo.zoomLevel = zoomLevel;
+      this.locationInfo.zoomlevel = zoomLevel;
     },
 
     sendPostAddLocationRequest() {
@@ -232,7 +254,7 @@ export default {
         return;
       }
 
-      const userId = 1;
+      const userId = 1; // or get dynamically
       const payloadLongLat = {
         ...this.locationInfo,
         latitude: parseFloat(this.locationInfo.latitude),
@@ -241,20 +263,22 @@ export default {
 
       console.log("Sending payload:", payloadLongLat);
 
+
       axios.post(`/location?userId=${userId}`, payloadLongLat)
           .then((response) => {
-            console.log("POST response data:", response.data); // Add this line!
-            this.successMessage = "Location added successfully!";
+            console.log("POST response data:", response.data);
 
-            setTimeout(() => {
-              this.successMessage = "";
-            }, 3000);
+            // Update locationInfo with returned data including ID
+            this.locationInfo = {...response.data};
+
+            this.isEditing = false; // lock form after save
+
+            this.successMessage = "Location added successfully!";
+            setTimeout(() => (this.successMessage = ""), 3000);
           })
           .catch((error) => {
             this.errorMessage = "Asukoha lisamisel tekkis viga";
-            setTimeout(() => {
-              this.errorMessage = "";
-            }, 3000);
+            setTimeout(() => (this.errorMessage = ""), 3000);
           });
     },
 
@@ -294,5 +318,28 @@ export default {
       return latValidation === true && longValidation === true;
     },
   },
+
+  mounted() {
+    if (this.locationId) {
+      fetch(`/location/${this.locationId}`)
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Network response was not ok");
+            }
+            return response.json();
+          })
+          .then((data) => {
+            this.locationInfo = data;
+            this.isEditing = false; // show loaded data as read-only
+          })
+          .catch((error) => {
+            console.error("There was a problem fetching location data:", error);
+          });
+    }
+  },
 };
 </script>
+
+<style scoped>
+/* Add your component styles here */
+</style>

@@ -19,7 +19,8 @@ export default {
   props: {
     zoomLevel: Number,
     latitude: Number,
-    longitude: Number
+    longitude: Number,
+    disabled: Boolean,
   },
   emits: ['update:latitude', 'update:longitude', 'update:zoomLevel'],
   data() {
@@ -47,16 +48,20 @@ export default {
     this.setMarker(lat, lng);
 
     this.map.on('zoomend', () => {
-      const zoomLevel = this.map.getZoom();
-      this.$emit('update:zoomLevel', zoomLevel);
+      if (!this.disabled) {
+        const zoomLevel = this.map.getZoom();
+        this.$emit('update:zoomLevel', zoomLevel);
+      }
     });
 
-    // this.map.on('click', (e) => {
-    //   const {lat, lng} = e.latlng;
-    //   this.setMarker(lat, lng);
-    //   this.$emit('update:latitude', parseFloat(lat.toFixed(18)));
-    //   this.$emit('update:longitude', parseFloat(lng.toFixed(18)));
-    // });
+    this.map.on('click', (e) => {
+      if (!this.disabled) {
+        const {lat, lng} = e.latlng;
+        this.setMarker(lat, lng);
+        this.$emit('update:latitude', parseFloat(lat.toFixed(18)));
+        this.$emit('update:longitude', parseFloat(lng.toFixed(18)));
+      }
+    });
 
     this.mapReady = true;
   },

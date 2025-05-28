@@ -18,4 +18,8 @@ export default {
         router.push({name: 'gameRoute'})
     },
 
+    navigateToLocationView() {
+        router.push({name: 'locationRoute'})
+    },
+
 }

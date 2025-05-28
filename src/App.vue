@@ -2,6 +2,7 @@
   <nav>
     <router-link to="/about">Kuidas M2ngida</router-link> |
     <router-link to="/games">M2ngud</router-link> |
+    <router-link to="/locations">Minu asukohad</router-link> |
   </nav>
   <router-view/>
 </template>

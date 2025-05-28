@@ -23,4 +23,8 @@ export default {
         })
     },
 
+    navigateToLocationView() {
+        router.push({name: 'locationRoute'})
+    },
+
 }

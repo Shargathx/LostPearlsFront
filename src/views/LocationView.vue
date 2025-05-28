@@ -126,6 +126,20 @@
               Submit
             </button>
           </div>
+
+          <!-- siin Kaspari lisatud vihjete ja keywordide lisamine -->
+          <div class="col-12">
+
+            <label> Answer keywords </label>
+
+            <LocationKeywordsTable :keywords="keywords"
+
+            />
+
+            <Modal :modal-is-open="false">
+
+            </Modal>
+          </div>
         </div>
       </div>
 
@@ -152,10 +166,12 @@ import Navigation from "@/navigation/Navigation";
 import LocationService from "@/services/LocationService";
 import CountyService from "@/services/CountyService";
 import {useRoute} from "vue-router";
+import Modal from "@/components/modal/Modal.vue";
+import LocationKeywordsTable from "@/components/location/LocationKeywordsTable.vue";
 
 export default {
   name: "LocationView",
-  components: {MapPicker, CountiesDropdown},
+  components: {LocationKeywordsTable, Modal, MapPicker, CountiesDropdown},
 
   data() {
     return {
@@ -195,6 +211,13 @@ export default {
         latitude: "",
         longitude: "",
       },
+
+      keywords:[
+        {
+          answerId: 0,
+          keyword: ''
+        }
+      ]
 
     };
   },

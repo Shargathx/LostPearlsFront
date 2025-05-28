@@ -1,7 +1,8 @@
 <template>
   <div class="">
     <label for="countyId" class="form-label">County</label>
-    <select :value="selectedCountyId"
+    <select :disabled="disabled"
+            :value="selectedCountyId"
             @change="handleCountyDropdownChange"
             id="countyId" class="form-select">
 
@@ -21,17 +22,18 @@ export default {
       type: Number,
       default: null,
     },
+    disabled: Boolean
   },
 
   data() {
     return {
       counties: [
-        { id: 1, name: "Harjumaa" },
-        { id: 2, name: "Hiiumaa" },
-        { id: 3, name: "Põlva" },
-        { id: 4, name: "Rapla" },
-        { id: 5, name: "Viljandi" },
-        { id: 6, name: "Võrumaa" },
+        {id: 1, name: "Harjumaa"},
+        {id: 2, name: "Hiiumaa"},
+        {id: 3, name: "Põlva"},
+        {id: 4, name: "Rapla"},
+        {id: 5, name: "Viljandi"},
+        {id: 6, name: "Võrumaa"},
       ],
     };
   },

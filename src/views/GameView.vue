@@ -12,7 +12,7 @@
         <p v-if="displayExtendedInfo">{{ game.extendedInfo }}</p>
       </div>
       <div class="col">
-        <MapPicker
+        <GameMap
             :zoom-level="game.zoomLevel"
             :latitude="game.lat"
             :longitude="game.lng"
@@ -47,11 +47,12 @@ import {useRoute} from "vue-router";
 import MapPicker from "@/components/MapPicker.vue";
 import TeaserView from "@/components/location/TeaserView.vue";
 import LocationImage from "@/components/location/LocationImage.vue";
+import GameMap from "@/components/GameMap.vue";
 import CountyService from "@/services/CountyService";
 
 export default {
   name: "GameView",
-  components: {LocationImage, TeaserView, MapPicker},
+  components: {LocationImage, TeaserView, MapPicker, GameMap},
   data() {
     return {
       gameId: Number(useRoute().query.gameId),

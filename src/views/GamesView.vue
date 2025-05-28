@@ -47,8 +47,9 @@
 
       <!-- THE GAME Placeholder -->
       <section class="the-game">
-        <h2>THE GAME (Placeholder)</h2>
-        <div class="placeholder-box">[Game info/details here]</div>
+        <div>
+          <GameLocationsGrid />
+        </div>
       </section>
 
       <!-- Initiate Games Fields -->
@@ -93,6 +94,7 @@
 <script setup>
 import {onMounted, ref} from 'vue'
 import StaticMapPicker from "@/components/StaticMapPicker.vue";
+import GameLocationsGrid from "@/components/game/GameLocationsGrid.vue";
 
 // Nav buttons placeholders
 const navButtons = ref([

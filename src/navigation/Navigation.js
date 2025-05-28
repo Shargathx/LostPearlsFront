@@ -17,5 +17,10 @@ export default {
     navigateToGameView() {
         router.push({name: 'gameRoute'})
     },
+    navigateToLocationEditView(locationId) {
+        router.push({name: 'locationRoute',
+        query: {locationId: locationId}
+        })
+    },
 
 }

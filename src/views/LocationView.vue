@@ -115,38 +115,28 @@
           </div>
 
           <div class="col-12 text-end mt-3">
-            <button v-if="isViewMode" @click="() => { isEditMode = true; isViewMode = false; } "
-                    class="btn btn-secondary">
+            <button
+                v-if="isViewMode"
+                @click="switchToEdit"
+                class="btn btn-secondary"
+            >
               Edit
             </button>
             <button
                 v-if="isEditMode"
                 :disabled="duplicateExists"
-                @click="sendPostAddLocationRequest"
-                class="btn btn-primary">
-              Submit
+                @click="submitLocation"
+                class="btn btn-primary"
+            >
+              {{ locationId === 0 ? "Submit" : "Save changes" }}
             </button>
-            <!--            <button-->
-            <!--                v-if="isEditMode"-->
-            <!--                :disabled="duplicateExists"-->
-            <!--                @click="sendPostAddLocationRequest"-->
-            <!--                class="btn btn-primary">-->
-            <!--              Submit-->
-            <!--            </button>-->
           </div>
 
           <!-- siin Kaspari lisatud vihjete ja keywordide lisamine -->
           <div class="col-12">
-
             <label> Answer keywords </label>
-
-            <LocationKeywordsTable :keywords="keywords"
-
-            />
-
-            <Modal :modal-is-open="false">
-
-            </Modal>
+            <LocationKeywordsTable :keywords="keywords"/>
+            <Modal :modal-is-open="false"></Modal>
           </div>
         </div>
       </div>
@@ -179,13 +169,17 @@ import LocationKeywordsTable from "@/components/location/LocationKeywordsTable.v
 
 export default {
   name: "LocationView",
-  components: {LocationKeywordsTable, Modal, MapPicker, CountiesDropdown},
+  components: {
+    LocationKeywordsTable,
+    Modal,
+    MapPicker,
+    CountiesDropdown,
+  },
 
   data() {
     return {
       isEditMode: true, // start in edit mode
       isViewMode: false,
-      // userId: Number(sessionStorage.getItem("userId")),
       userId: 1,
       locationId: 0,
 
@@ -194,7 +188,7 @@ export default {
       selectedCounty: {
         latitude: 0,
         longitude: 0,
-        zoomlevel: 0
+        zoomlevel: 0,
       },
 
       locationInfo: {
@@ -235,31 +229,26 @@ export default {
       keywords: [
         {
           answerId: 0,
-          keyword: ''
-        }
-      ]
-
+          keyword: "",
+        },
+      ],
     };
   },
 
   methods: {
-
     handleNewCountySelected(countyId) {
       this.locationInfo.countyId = countyId;
       CountyService.sendGetCountyRequest(countyId)
-          .then(response => this.handleGetCountyResponse(response))
-          .catch(() => Navigation.navigateToErrorView())
-
+          .then((response) => this.handleGetCountyResponse(response))
+          .catch(() => Navigation.navigateToErrorView());
     },
-
 
     handleGetCountyResponse(response) {
-      this.selectedCounty = response.data
-      this.locationInfo.latitude = this.selectedCounty.latitude
-      this.locationInfo.longitude = this.selectedCounty.longitude
-      this.locationInfo.zoomlevel = this.selectedCounty.zoomlevel
+      this.selectedCounty = response.data;
+      this.locationInfo.latitude = this.selectedCounty.latitude;
+      this.locationInfo.longitude = this.selectedCounty.longitude;
+      this.locationInfo.zoomlevel = this.selectedCounty.zoomlevel;
     },
-
 
     setLocationInfoLatitude(latitude) {
       this.locationInfo.latitude = latitude;
@@ -271,67 +260,87 @@ export default {
 
     getLocation() {
       LocationService.sendGetLocationRequest(this.locationId)
-          .then(response => this.handleGetLocationResponse(response))
-          .catch(() => Navigation.navigateToErrorView())
+          .then((response) => this.handleGetLocationResponse(response))
+          .catch(() => Navigation.navigateToErrorView());
     },
 
-    putLocation() {
-      if (this.locationInfoChanged()) {
-        alert("No changes made")
+    switchToEdit() {
+      this.isViewMode = false;
+      this.isEditMode = true;
+    },
+
+    submitLocation() {
+      if (this.locationId === 0) {
+        this.sendPostLocationRequest();
+      } else {
+        this.sendPutLocationRequest();
+      }
+    },
+
+    sendPutLocationRequest() {
+      if (!this.locationInfoChanged()) {
+        alert("No changes made");
         return;
       }
       LocationService.sendPutLocationRequest(this.locationId, this.locationInfo)
-          .then(() => this.getLocation())
-          .catch(() => Navigation.navigateToErrorView())
+          .then(() => {
+            this.successMessage = "Location updated successfully!";
+            this.isViewMode = true;
+            this.isEditMode = false;
+            this.originalLocationInfo = {...this.locationInfo};
+            setTimeout(this.resetAllMessages, 3000);
+          })
+          .catch(() => {
+            this.errorMessage = "Error updating location";
+            setTimeout(this.resetAllMessages, 3000);
+          });
     },
 
     locationInfoChanged() {
-      return JSON.stringify(this.locationInfo) === JSON.stringify(this.originalLocationInfo)
+      return (
+          JSON.stringify(this.locationInfo) !== JSON.stringify(this.originalLocationInfo)
+      );
     },
-
 
     handleGetLocationResponse(response) {
-      this.locationInfo = response.data
-      this.originalLocationInfo = {...response.data}
+      this.locationInfo = response.data;
+      this.originalLocationInfo = {...response.data};
     },
 
-    sendPostAddLocationRequest() {
-
+    sendPostLocationRequest() {
       LocationService.sendPostLocationRequest(this.userId, this.locationInfo)
-          .then(response => {
-
-            this.locationId = response.data
+          .then((response) => {
+            this.locationId = response.data;
 
             this.isEditMode = false;
             this.isViewMode = true;
 
             this.successMessage = "Location added successfully!";
+            this.originalLocationInfo = {...this.locationInfo};
+
             setTimeout(this.resetAllMessages, 3000);
-            Navigation.navigateToLocationEditView(this.locationId)
+            Navigation.navigateToLocationEditView(this.locationId);
           })
-          .catch((error) => {
+          .catch(() => {
             this.errorMessage = "Asukoha lisamisel tekkis viga";
             setTimeout(this.resetAllMessages, 3000);
           });
     },
 
     resetAllMessages() {
-      this.successMessage = ""
-      this.errorMessage = ""
+      this.successMessage = "";
+      this.errorMessage = "";
     },
-
-
   },
 
   beforeMount() {
-    this.isViewMode = useRoute().query.locationId !== undefined
-    this.isEditMode = !this.isViewMode
+    this.isViewMode = useRoute().query.locationId !== undefined;
+    this.isEditMode = !this.isViewMode;
 
     if (this.isViewMode) {
-      this.locationId = Number(useRoute().query.locationId)
-      this.getLocation()
+      this.locationId = Number(useRoute().query.locationId);
+      this.getLocation();
     }
-
   },
 };
 </script>

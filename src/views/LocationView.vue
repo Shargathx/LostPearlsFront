@@ -202,6 +202,7 @@ export default {
   methods: {
 
     handleNewCountySelected(countyId) {
+      this.locationInfo.countyId = countyId;
       CountyService.sendGetCountyRequest(countyId)
           .then(response => this.handleGetCountyResponse(response))
           .catch(() => Navigation.navigateToErrorView())

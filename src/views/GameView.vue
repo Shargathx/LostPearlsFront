@@ -26,9 +26,10 @@
       <div  v-if=isGameAdded class="col justify-content-center">
         <button @click="startGame" type="button" class="btn btn-outline-success">START</button>
       </div>
-      <div v-if=isGameStarted class="col justify-content-center">
+      <div v-if=isGameStarted class="col align-content-lg-start">
+<!--  Midagi mida ehk hiljem kasutada.      <GameStartedView/>-->
         <h5>{{ game.question }}</h5>
-        <input v-model="game.answer" placeholder="Ideaalis v6iks vastuse siia kirjutada" />
+        <input type="search" v-modal="game.answer" placeholder="Siia kirjuta vastus">
         <button @click="submitAnswer">Vasta</button>
       </div>
     </div>
@@ -70,7 +71,7 @@ export default {
         teaserInfo: '',
         extendedInfo: '',
         question: '',
-        answer: '',
+        answer: null,
         gameStatus: '',
         gameStartMilliseconds: 0,
         gameEndMilliseconds: 0,
@@ -123,37 +124,38 @@ export default {
 
     startGame() {
       GameService.sendPatchGameRequest(this.gameId)
-          .then(() => this.getGame() )
+          .then(() => this.handleStartGameResponse())
           .catch(() => Navigation.navigateToErrorView())
     },
 
     handleStartGameResponse() {
-      this.isGameStarted = true
       this.getGame()
+      this.startGameTimer()
     },
 
-    addGame() {
-      GameService.sendPostGameRequest(this.game.locationId)
-          .then(response => this.someDataBlockResponseObject = response.data)
-          .catch(error => this.someDataBlockErrorResponseObject = error.response.data)
+
     },
 
-    refreshGameView() {
-      // this.getGame() or
-      this.$forceUpdate()
-    },
 
     submitAnswer() {
     },
 
     startGameTimer() {
+      this.gameElapsedMilliseconds = 0;
+      this.nextHintTime = 600000; // First hint after 10 minutes
       this.timerInterval = setInterval(() => {
         this.gameElapsedMilliseconds = Date.now() - this.game.gameStartMilliseconds;
 
-        // Offer a hint every 10 minutes (600,000 ms)
+        // Offer a hint every 10 minutes
         if (this.gameElapsedMilliseconds >= this.nextHintTime) {
-          this.askForHint();
-          this.nextHintTime += 600000;
+          this.offerHint();
+          this.nextHintTime += 600000; // Schedule next hint
+        }
+
+        // If 60 minutes pass, set points to 0
+        if (this.gameElapsedMilliseconds >= 3600000) {
+          this.game.points = 0;
+          clearInterval(this.timerInterval); // Stop timer
         }
       }, 1000);
     },
@@ -164,14 +166,15 @@ export default {
             .then(response => this.game.hint = response.data.hint)
             .catch(error => console.error("Hint fetch error:", error.response));
       }
-    }
+    },
+    inputPlaceholder() {
+      return this.game.answer ? "" : "Ideaalis v6iks vastuse siia kirjutada";
+    },
   },
 
   beforeMount() {
     this.getGame()
-  },
+  }
 }
-
-
 
 </script>

@@ -124,7 +124,7 @@
             </button>
             <button
                 v-if="isEditMode"
-                :disabled="duplicateExists"
+                :disabled="duplicateExists || !locationInfoChanged"
                 @click="submitLocation"
                 class="btn btn-primary"
             >
@@ -234,6 +234,14 @@ export default {
       ],
     };
   },
+  computed: {
+    locationInfoChanged() {
+      return (
+          JSON.stringify(this.locationInfo) !== JSON.stringify(this.originalLocationInfo)
+      );
+    },
+  },
+
 
   methods: {
     handleNewCountySelected(countyId) {
@@ -294,12 +302,6 @@ export default {
             this.errorMessage = "Error updating location";
             setTimeout(this.resetAllMessages, 3000);
           });
-    },
-
-    locationInfoChanged() {
-      return (
-          JSON.stringify(this.locationInfo) !== JSON.stringify(this.originalLocationInfo)
-      );
     },
 
     handleGetLocationResponse(response) {

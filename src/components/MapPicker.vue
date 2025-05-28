@@ -8,7 +8,6 @@
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-// Set default marker icons (so they don't 404)
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: '/leaflet/marker-icon-2x.png',
   iconUrl: '/leaflet/marker-icon.png',
@@ -83,7 +82,7 @@ export default {
           this.map.setZoom(newZoom);
         }
       }
-    }
+    },
 /* THIS UPDATES ZOOM EVERY TIME YOU ZOOM (MAYBE ANNOYING)
     watch: {
       coordinates() {
@@ -131,6 +130,13 @@ export default {
         this.marker.setLatLng([lat, lng]);
       } else {
         this.marker = L.marker([lat, lng]).addTo(this.map);
+      }
+    },
+
+    updateMarkerPosition(lat, lng) {
+      if (!isNaN(lat) && !isNaN(lng)) {
+        this.setMarker(lat, lng);
+        this.map.panTo([lat, lng]);
       }
     }
   }

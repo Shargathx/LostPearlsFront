@@ -115,7 +115,8 @@
           </div>
 
           <div class="col-12 text-end mt-3">
-            <button v-if="isViewMode" @click="isEditMode = true" class="btn btn-secondary">
+            <button v-if="isViewMode" @click="() => { isEditMode = true; isViewMode = false; } "
+                    class="btn btn-secondary">
               Edit
             </button>
             <button
@@ -125,6 +126,13 @@
                 class="btn btn-primary">
               Submit
             </button>
+            <!--            <button-->
+            <!--                v-if="isEditMode"-->
+            <!--                :disabled="duplicateExists"-->
+            <!--                @click="sendPostAddLocationRequest"-->
+            <!--                class="btn btn-primary">-->
+            <!--              Submit-->
+            <!--            </button>-->
           </div>
 
           <!-- siin Kaspari lisatud vihjete ja keywordide lisamine -->
@@ -201,6 +209,18 @@ export default {
         answer: "",
       },
 
+      originalLocationInfo: {
+        countyId: 0,
+        locationName: "",
+        zoomlevel: 12,
+        longitude: 24.7536,
+        latitude: 59.437,
+        teaser: "",
+        extendedInfo: "",
+        question: "",
+        answer: "",
+      },
+
       duplicateExists: false,
       successMessage: "",
       errorMessage: "",
@@ -212,7 +232,7 @@ export default {
         longitude: "",
       },
 
-      keywords:[
+      keywords: [
         {
           answerId: 0,
           keyword: ''
@@ -231,6 +251,7 @@ export default {
           .catch(() => Navigation.navigateToErrorView())
 
     },
+
 
     handleGetCountyResponse(response) {
       this.selectedCounty = response.data
@@ -254,8 +275,24 @@ export default {
           .catch(() => Navigation.navigateToErrorView())
     },
 
+    putLocation() {
+      if (this.locationInfoChanged()) {
+        alert("No changes made")
+        return;
+      }
+      LocationService.sendPutLocationRequest(this.locationId, this.locationInfo)
+          .then(() => this.getLocation())
+          .catch(() => Navigation.navigateToErrorView())
+    },
+
+    locationInfoChanged() {
+      return JSON.stringify(this.locationInfo) === JSON.stringify(this.originalLocationInfo)
+    },
+
+
     handleGetLocationResponse(response) {
       this.locationInfo = response.data
+      this.originalLocationInfo = {...response.data}
     },
 
     sendPostAddLocationRequest() {
@@ -265,7 +302,8 @@ export default {
 
             this.locationId = response.data
 
-            this.isEditMode = false; // lock form after save
+            this.isEditMode = false;
+            this.isViewMode = true;
 
             this.successMessage = "Location added successfully!";
             setTimeout(this.resetAllMessages, 3000);

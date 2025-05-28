@@ -13,5 +13,14 @@ export default {
         return axios.get("/location/" + locationId)
     },
 
+    sendGetUserLocationsRequest(userId) {
+        return axios.get('/locations/all', {
+                params: {
+                    userId: userId
+                }
+            }
+        );
+    },
+
 
 }

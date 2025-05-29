@@ -7,11 +7,10 @@
       </template>
 
       <template #body>
-        <img class="img-thumbnail" width="300" src="https://assets-v2.lottiefiles.com/a/8b482bde-116c-11ee-b205-3bbacd4e17cc/sw6Exiwa6c.gif" alt="gif nooleke välja">
       </template>
 
-      <template #buttons>
-        <button @click="$emit('event-logout-confirmed')" class="btn btn-success">Jah</button>
+      <template #footer>
+        <button @click="$emit('event-logout-confirmed')" class="btn btn-success mb-5 me-4">Jah</button>
       </template>
 
     </Modal>
@@ -29,3 +28,9 @@ export default {
   }
 }
 </script>
+
+<style>
+
+
+
+</style>

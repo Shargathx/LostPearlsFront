@@ -1,26 +1,5 @@
 <template>
   <div class="page-grid">
-    <!-- Banner -->
-    <header class="banner justify-content-center">
-      <h1>My Game Dashboard</h1>
-    </header>
-
-    <!-- Navigation Bar -->
-    <nav class="navbar">
-      <div class="nav-left">
-        <!-- Could add a logo here or leave empty -->
-      </div>
-      <div class="nav-center">
-        <button v-for="btn in navButtons" :key="btn.id" class="nav-btn">
-          {{ btn.label }}
-        </button>
-      </div>
-      <div class="nav-right">
-        <button @click="goToProfile">My Profile</button>
-        <button @click="">Log Out</button>
-      </div>
-    </nav>
-
     <section class="content-left">
       <section class="games-completed">
         <h2>Games Completed (Stats)</h2>
@@ -45,35 +24,12 @@
       <!-- THE GAME Placeholder -->
       <section class="the-game">
         <div>
-          <GameLocationsGrid />
+          <GameLocationsGrid/>
         </div>
       </section>
 
-      <!-- Initiate Games Fields -->
-      <section class="initiate-games">
-        <h2>Start a New Game</h2>
-        <div class="game-fields">
-          <div
-              v-for="(field, index) in initiateFields"
-              :key="index"
-              class="game-field"
-              @click="openAddLocation(index)"
-          >
-            <div class="thumbnail">
-              <img
-                  src="actual-image.jpg"
-                  onerror="this.onerror=null; this.src='https://cdn3.emoji.gg/emojis/82146-skulltoppray.png';"
-                  style="max-width: 100%; height: auto;"
-                  alt="image"
-              />
-            </div>
-            <div class="info">
-              <p><strong>Name:</strong> {{ field.name || 'Click to add' }}</p>
-              <p><strong>County:</strong> {{ field.county || 'Click to add' }}</p>
-            </div>
-          </div>
-        </div>
-      </section>
+
+      <GameFields :counties="counties"/>
 
       <!-- My Played Games -->
       <section class="played-games">
@@ -88,79 +44,67 @@
 
     <!-- Right Side Map Picker -->
     <aside class="content-right">
-      <StaticMapPicker :markers="activeGameMarkers"/>
+      <StaticGameFieldsMapPicker :markers="activeGameMarkers"/>
     </aside>
   </div>
 </template>
 
-<script setup>
-import {onMounted, ref} from 'vue'
-import StaticMapPicker from "@/components/StaticMapPicker.vue";
+<script>
 import GameLocationsGrid from "@/components/game/GameLocationsGrid.vue";
 import LogOutModal from "@/components/modal/LogOutModal.vue";
+import AddLocationModal from "@/components/modal/AddGameModal.vue";
+import GameFields from "@/components/game/GameFields.vue";
+import StaticGameFieldsMapPicker from "@/components/StaticGameFieldsMapPicker.vue";
+import CountyService from "@/services/CountyService";
 
-// Nav buttons placeholders
-const navButtons = ref([
-  {id: 1, label: 'Home'},
-  {id: 2, label: 'Games'},
-  {id: 3, label: 'Settings'},
-])
+export default {
+  components: {
+    StaticGameFieldsMapPicker,
+    GameFields,
+    GameLocationsGrid,
+    LogOutModal,
+    AddLocationModal,
+  },
 
-// Completed games stats placeholder
-const completedGames = ref([
-  {id: 101, name: 'Game A', completedDate: '2024-04-15', score: 85},
-  {id: 102, name: 'Game B', completedDate: '2024-05-10', score: 92},
-])
+  data() {
+    return {
+      activeGameMarkers: [],
 
-// Initiate game fields, initially empty
-const initiateFields = ref([
-  {name: '', county: '', image: ''},
-  {name: '', county: '', image: ''},
-  {name: '', county: '', image: ''},
-])
+      counties: {
+        type: Array,
+        default: () => []
+      },
 
-const placeholderImage = 'https://cdn3.emoji.gg/emojis/82146-skulltoppray.png'
 
-// Played games from backend (dummy fetch)
-const playedGames = ref([])
+      completedGames: [
+        {id: 101, name: "Game A", completedDate: "2024-04-15", score: 85},
+        {id: 102, name: "Game B", completedDate: "2024-05-10", score: 92},
+      ],
+    };
+  },
 
-// Active game markers for MapPicker
-const activeGameMarkers = ref([])
+  methods: {
 
-// Simulated fetch on mounted
-onMounted(() => {
-  fetchPlayedGames()
-})
 
-function fetchPlayedGames() {
-  // Dummy async fetch, replace with real API call
-  setTimeout(() => {
-    playedGames.value = [
-      {id: 201, name: 'Adventure Quest', completedDate: '2024-01-20'},
-      {id: 202, name: 'Mystery Island', completedDate: '2024-03-05'},
-    ]
 
-    // For map markers, simulate from playedGames or active games
-    activeGameMarkers.value = [
-      {id: 1, lat: 40.7128, lng: -74.006, label: 'Adventure Quest'},
-      {id: 2, lat: 34.0522, lng: -118.2437, label: 'Mystery Island'},
-    ]
-  }, 500)
-}
 
-function openAddLocation(index) {
-  // Logic to open modal or navigate to add location page
-  alert(`Open Add Location modal/page for field ${index + 1}`)
-}
 
-function goToProfile() {
-  alert('Go to My Profile page')
-}
 
-function logout() {
-  alert('Logging out...')
-}
+  },
+
+  beforeMount() {
+    CountyService.getAllCounties()
+        .then(response => {
+          this.counties = response.data;
+        })
+        .catch(() => {
+          alert("Failed to load counties.");
+        });
+  }
+
+};
 </script>
+
 
 <style scoped>
 .page-grid {
@@ -306,4 +250,38 @@ function logout() {
 .played-games li {
   margin-bottom: 0.3rem;
 }
+
+.game-field {
+  position: relative;
+  cursor: pointer;
+}
+
+.plus-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 48px;
+  color: green;
+  font-weight: bold;
+  pointer-events: none; /* so clicks pass through */
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  user-select: none;
+}
+
+.game-field.empty-slot:hover .plus-overlay {
+  opacity: 1;
+}
+
+/* Optional: a nice plus sign using ::before */
+.plus-overlay::before {
+  content: '+';
+}
+
 </style>

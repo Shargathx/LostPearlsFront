@@ -28,7 +28,7 @@
       </div>
       <div v-if=isGameStarted class="col justify-content-center">
         <h5>{{ game.question }}</h5>
-        <input v-model="game.answer" placeholder="Ideaalis v6iks vastuse siia kirjutada"/>
+        <input v-model="game.answer" placeholder="Ideaalis võiks vastuse siia kirjutada"/>
         <button @click="submitAnswer">Vasta</button>
       </div>
     </div>

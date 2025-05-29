@@ -11,7 +11,7 @@
         <p v-if="displayTeaserInfo">{{ game.teaserInfo }}</p>
         <p v-if="displayExtendedInfo">{{ game.extendedInfo }}</p>
       </div>
-      <div class="col">
+      <div class="col leaflet-container">
         <GameMap
             :zoom-level="game.zoomLevel"
             :latitude="game.lat"
@@ -26,17 +26,52 @@
       <div  v-if=isGameAdded class="col justify-content-center">
         <button @click="startGame" type="button" class="btn btn-outline-success">START</button>
       </div>
-      <div v-if=isGameStarted class="col align-content-lg-start">
-<!--  Midagi mida ehk hiljem kasutada.      <GameStartedView/>-->
-        <h5>{{ game.question }}</h5>
-        <input type="search" v-modal="game.answer" placeholder="Siia kirjuta vastus">
-        <button @click="submitAnswer">Vasta</button>
+      <div v-if=isGameStarted class="game-container">
+        <!--  Midagi mida ehk hiljem kasutada.      <GameStartedView/>-->
+        <div class="question-container">
+          <h5>{{ game.question }}</h5>
+        </div>
+        <div class="answer-container">
+          <input type="search" v-modal="game.answer" placeholder="Siia kirjuta vastus">
+          <button @click="submitAnswer">Vasta</button>
+          <h5>⏳ Timer: {{ formattedElapsedTime() }}</h5>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div v-if="hintPromptActive" class="hint-prompt">
+        <p>Kas sa soovid vihjet?</p>
+        <button @click="offerHint">Jah</button>
+        <button @click="declineHint">Ei</button>
+      </div>
+      <div v-if="selectedHint" class="hint-display">
+        <h5>{{ selectedHint }}</h5>
+      </div>
+      <div v-if="hintsPaused" class="request-hint">
+        <button @click="resumeHints">Küsi vihjet</button>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
+
+.game-container {
+  display: flex;
+  flex-direction: column; /* Stack elements vertically */
+  align-items: flex-start; /* Align everything to the left */
+}
+.question-container {
+  width: 100%;
+  text-align: left; /* Ensures the question stays on one line */
+  margin-bottom: 10px; /* Adds spacing before the answer box */
+}
+
+.answer-container {
+  display: flex;
+  align-items: center;
+  gap: 15px; /* Adds spacing between elements */
+}
 
 </style>
 
@@ -50,6 +85,7 @@ import LocationImage from "@/components/location/LocationImage.vue";
 import GameMap from "@/components/GameMap.vue";
 import GameStartedViewView from "@/components/game/GameStartedView.vue";
 import Navigation from "@/navigation/Navigation";
+import HintService from "@/services/HintService";
 
 export default {
   name: "GameView",
@@ -63,6 +99,9 @@ export default {
       userId: '',
       displayTeaserInfo: false,
       displayExtendedInfo: false,
+      gameElapsedMilliseconds: '',
+      nextHintTime:'',
+      timerInterval:'',
 
       game: {
         countyName: '',
@@ -89,6 +128,11 @@ export default {
           hint: '',
         }
       ],
+      hintPromptActive: false,
+      selectedHint:'',
+      availableHints:'',
+      hintsPaused: '',
+
 
       errorResponse: {
         message: '',
@@ -131,49 +175,77 @@ export default {
     handleStartGameResponse() {
       this.getGame()
       this.startGameTimer()
+      this.fetchHints()
     },
 
-
-    },
-
-
-    submitAnswer() {
-    },
 
     startGameTimer() {
-      this.gameElapsedMilliseconds = 0;
-      this.nextHintTime = 600000; // First hint after 10 minutes
+      let storedTime = localStorage.getItem("gameStartTime");
+      this.game.gameStartMilliseconds = storedTime ? Number(storedTime) : Date.now() ;
+
+      localStorage.setItem("gameStartTime", this.game.gameStartMilliseconds);
+      this.gameElapsedMilliseconds = Date.now() - this.game.gameStartMilliseconds;
+      this.nextHintTime = 5000;
       this.timerInterval = setInterval(() => {
         this.gameElapsedMilliseconds = Date.now() - this.game.gameStartMilliseconds;
+        localStorage.setItem("gameElapsedMilliseconds", this.gameElapsedMilliseconds);
 
         // Offer a hint every 10 minutes
         if (this.gameElapsedMilliseconds >= this.nextHintTime) {
-          this.offerHint();
-          this.nextHintTime += 600000; // Schedule next hint
+          this.hintPromptActive = true;
+          this.nextHintTime += 5000; // Schedule next hint - 60000
         }
 
         // If 60 minutes pass, set points to 0
         if (this.gameElapsedMilliseconds >= 3600000) {
           this.game.points = 0;
-          clearInterval(this.timerInterval); // Stop timer
         }
       }, 1000);
     },
 
-    askForHint() {
-      if (confirm("Kas sa soovid vihjet?")) {
-        GameService.getHint(this.gameId)
-            .then(response => this.game.hint = response.data.hint)
-            .catch(error => console.error("Hint fetch error:", error.response));
+    formattedElapsedTime() {
+      let totalSeconds = Math.floor(this.gameElapsedMilliseconds / 1000);
+      let minutes = Math.floor(totalSeconds / 60);
+      let seconds = totalSeconds % 60;
+      return `${minutes}m ${seconds}s`;
+    },
+
+    offerHint() {
+      this.hintPromptActive = false;
+      this.getHint(); // Generate a hint only when "Jah" is clicked
+      this.hintsPaused = false; // Resume automatic hint prompts
+    },
+
+    declineHint() {
+      this.hintPromptActive = false; // Hide prompt
+      this.hintsPaused = true; // Pause automatic hint prompts
+    },
+
+    resumeHints() {
+      this.hintsPaused = false; // Resume automatic hint prompts
+      this.getHint(); // Give the previously declined hint
+    },
+
+    fetchHints() {
+      HintService.sendGetHintsRequest(this.game.locationId)
+          .then(response => this.hints = response.data)
+          .catch(() => alert("Vihjeid pole v6i said otsa. Oled omap2i."));
+    },
+
+    getHint() {
+      if (this.hints.length === 0) {
+        this.selectedHint = "No hints available.";
+        return;
       }
-    },
-    inputPlaceholder() {
-      return this.game.answer ? "" : "Ideaalis v6iks vastuse siia kirjutada";
-    },
+
+      let randomHint = this.hints[Math.floor(Math.random() * this.hints.length)];
+      this.selectedHint = randomHint.hint; // Show the selected hint
+      this.hintPromptActive = false;
+    }
   },
 
   beforeMount() {
-    this.getGame()
+    this.getGame();
   }
 }
 

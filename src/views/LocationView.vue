@@ -166,6 +166,7 @@ import CountyService from "@/services/CountyService";
 import {useRoute} from "vue-router";
 import Modal from "@/components/modal/Modal.vue";
 import LocationKeywordsTable from "@/components/location/LocationKeywordsTable.vue";
+import KeywordService from "@/services/KeywordService";
 
 
 export default {
@@ -229,7 +230,7 @@ export default {
 
       keywords: [
         {
-          answerId: 0,
+          keywordId: 0,
           keyword: "",
         },
       ],
@@ -270,6 +271,13 @@ export default {
     getLocation() {
       LocationService.sendGetLocationRequest(this.locationId)
           .then((response) => this.handleGetLocationResponse(response))
+          .catch(() => Navigation.navigateToErrorView());
+    },
+
+    /// todo
+    getLocationKeywords() {
+      KeywordService.sendGetKeywordRequest(this.locationId)
+          .then((response) => this.keywords = response.data)
           .catch(() => Navigation.navigateToErrorView());
     },
 
@@ -349,6 +357,10 @@ export default {
     if (this.isViewMode) {
       this.locationId = Number(useRoute().query.locationId);
       this.getLocation();
+      //todo
+      this.getLocationKeywords()
+
+
     }
   },
 };

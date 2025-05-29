@@ -5,6 +5,12 @@
         <h2>MINU SISESTATUD ASUKOHAD</h2>
       </div>
     </div>
+    <div class="row">
+      <div class="col">
+        <button @click="navigateToAddLocationView()" style="float: right">Lisa asukoht</button>
+      </div>
+
+    </div>
     <div class="row justify-content-center">
       <div class="col col-10 ">
         <LocationsTable :user-locations="userLocations"/>
@@ -18,6 +24,7 @@
 <script>
 import LocationsTable from "@/components/location/LocationsTable.vue";
 import LocationService from "@/services/LocationService";
+import Navigation from "@/navigation/Navigation";
 
 export default {
   name: "LocationsView",
@@ -56,7 +63,11 @@ export default {
       //.catch(error => this.someDataBlockErrorResponseObject = error.response.data)
     },
 
+    navigateToAddLocationView() {
+      Navigation.navigateToLocationView()
+    },
   },
+
   beforeMount() {
     this.getUserLocations()
   }

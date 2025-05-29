@@ -3,11 +3,11 @@
     <table class="table-striped table-hover table-bordered">
       <thead>
         <tr>
-          <th  scope="col">Nimi</th>
+          <th class="col" scope="col">Nimi</th>
           <th scope="col">Maakond</th>
           <th scope="col">Lühiinfo</th>
           <th scope="col">Lisatud kuupäev</th>
-          <th scope="col">nupp</th>
+          <th scope="col">Asukoht</th>
           <!--<th scope="col">Hinne</th>-->
         </tr>
       </thead>
@@ -19,8 +19,6 @@
           <td>{{userLocation.dateAdded}}</td>
           <td>
             <button @click="navigateToLocationView(userLocation.locationId)">Vaata</button></td>
-          <!-- mis hrefi? , vaja oleks et läheks valitud asukohta!!-->
-          <!--<a href='/location/" + locationId' @click="Navigation.navigateToLocationView(locationId)">  </a>-->
         </tr>
       </tbody>
     </table>

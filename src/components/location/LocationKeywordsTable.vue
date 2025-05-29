@@ -8,8 +8,8 @@
       </tr>
       </thead>
       <tbody>
-      <tr>
-        <td></td>
+      <tr v-for="keyword in keywords" :key="keyword.keywordId">
+        <td>{{keyword.keyword}}</td>
         <td>
           <font-awesome-icon icon="trash"/>
         </td>
@@ -26,7 +26,10 @@ import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 
 export default {
   name: "LocationKeywordsTable",
-  components: {FontAwesomeIcon}
+  components: {FontAwesomeIcon},
+  props:{
+    keywords: Array
+  }
 }
 </script>
 

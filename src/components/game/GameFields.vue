@@ -47,7 +47,13 @@ export default {
     counties: {
       type: Array,
       default: () => []
+    },
+
+    playedGames: {
+      type: Array,
+      default: () => []
     }
+
   },
 
 
@@ -57,15 +63,38 @@ export default {
       modalIsOpen: false,
       selectedFieldIndex: null,
       placeholderImage: "https://cdn3.emoji.gg/emojis/82146-skulltoppray.png",
-      initiateFields: [
-        {name: "", county: "", imageData: ""},
-        {name: "", county: "", imageData: ""},
-        {name: "", county: "", imageData: ""},
-      ],
+      initiateFields: [],
     };
   },
 
+  created() {
+    this.fillInitiateFields();
+  },
+
   methods: {
+
+    fillInitiateFields() {
+      if (!Array.isArray(this.playedGames)) {
+        this.initiateFields = [
+          {name: "", county: "", imageData: ""},
+          {name: "", county: "", imageData: ""},
+          {name: "", county: "", imageData: ""},
+        ];
+        return;
+      }
+
+      this.initiateFields = this.playedGames.map(game => ({
+        name: game.locationName,
+        county: game.countyName,
+        imageData: game.image || "",
+      }));
+
+      while (this.initiateFields.length < 3) {
+        this.initiateFields.push({name: "", county: "", imageData: ""});
+      }
+    },
+
+
     openAddLocation(index) {
       console.log("openAddLocation called for index", index);
       this.selectedFieldIndex = index;
@@ -90,8 +119,17 @@ export default {
     },
   },
 
+  watch: {
+    playedGames: {
+      immediate: true,
+      handler() {
+        this.fillInitiateFields();
+      }
+    }
+  }
+}
 
-};
+
 </script>
 
 <style scoped>

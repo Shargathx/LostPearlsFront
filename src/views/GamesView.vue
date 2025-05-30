@@ -29,10 +29,10 @@
       </section>
 
 
-      <GameFields :counties="counties"
+      <GameFields v-if="playedGames && playedGames.length >= 0"
+          :counties="counties"
                   :playedGames="playedGames"/>
 
-      <!-- My Played Games -->
       <section class="played-games">
         <h2>My Played Games</h2>
         <ul>
@@ -43,7 +43,6 @@
       </section>
     </section>
 
-    <!-- Right Side Map Picker -->
     <aside class="content-right">
       <StaticGameFieldsMapPicker :markers="activeGameMarkers"/>
     </aside>
@@ -99,9 +98,12 @@ export default {
 
     GameService.getUserGamesInProgress()
         .then(response => {
-          this.playedGames = response.data;
+          this.playedGames = Array.isArray(response.data) ? response.data : [];
         })
-        .catch(() => "Something failed")
+        .catch(() => {
+          this.playedGames = [];
+          alert("Failed to load played games.");
+        });
   }
 
 };

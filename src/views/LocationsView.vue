@@ -7,7 +7,7 @@
     </div>
     <div class="row justify-content-center">
       <div class="col col-10 ">
-        <LocationsTable/>
+        <LocationsTable :user-locations="userLocations"/>
       </div>
 
     </div>
@@ -17,16 +17,48 @@
 
 <script>
 import LocationsTable from "@/components/location/LocationsTable.vue";
+import LocationService from "@/services/LocationService";
 
 export default {
   name: "LocationsView",
   components: {LocationsTable},
-  data(){
+  data() {
     return {
-      //todo uuri kas Martinil tekib session storage
-      userId: 1,
-      roleName: ''
+
+      userId: Number(sessionStorage.getItem("userId")),
+      roleName: sessionStorage.getItem("roleName"),
+
+      userLocations: [
+        {
+          locationId: 0,
+          locationName: "",
+          countyName: "",
+          longitude: 0,
+          latitude: 0,
+          zoomlevel: 0,
+          teaser: "",
+          extendedInfo: "",
+          question: "",
+          answer: "",
+          status: "",
+          dateAdded: ""
+        }
+      ]
+
     }
+  },
+
+  methods: {
+    getUserLocations() {
+      LocationService.sendGetUserLocationsRequest(this.userId)
+          .then(response => this.userLocations = response.data)
+      //todo
+      //.catch(error => this.someDataBlockErrorResponseObject = error.response.data)
+    },
+
+  },
+  beforeMount() {
+    this.getUserLocations()
   }
 
 }

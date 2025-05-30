@@ -14,6 +14,7 @@ export default {
         return axios.patch('/game/started', null, {
             params: {
                 gameId: gameId
+
             }
         })
     },
@@ -24,7 +25,16 @@ export default {
             params: {
                 countyId: countyId,
                 userId: userId
+
             }
         })
     },
+
+    getUSerGamesInProgress() {
+        const userId = this.userId || 1;
+        return axios.get(`/games/${userId}/games-in-progress`)
+            .then(response => response.data)
+            .catch(() => console.error("Failed to fetch games in progress:"));
+    }
+
 }

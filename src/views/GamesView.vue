@@ -36,14 +36,16 @@
 
         <div class="game-fields justify-content-center">
           <div v-for="gameCard in gamesInProgressInfo.gameCards" :key="gameCard.gameId"
-               class="game-field"
-               @click=""
+               class="game-field justify-content-center"
+               @click="goToGameView(gameCard)"
           >
             <p>{{ gameCard.locationName }}</p>
             <p>{{ gameCard.countyName }}</p>
             <p>{{ gameCard.status }}</p>
           </div>
-          <div v-for="number in availableSlotsNumbers" :key="number" @click="openAddGameModal" class="game-field">
+          <div v-for="number in availableSlotsNumbers" :key="number" @click="openAddGameModal"
+               class="game-field justify-content-center">
+            <!--            <img src="https://cdn3.emoji.gg/emojis/82146-skulltoppray.png">-->
             <p>blank</p>
           </div>
 
@@ -59,7 +61,7 @@
     </section>
 
     <aside class="content-right">
-      <StaticGameFieldsMapPicker :markers="activeGameMarkers"/>
+      <StaticGameFieldsMapPicker :gameCards="gamesInProgressInfo.gameCards"/>
     </aside>
   </div>
 </template>
@@ -73,6 +75,7 @@ import GameFields from "@/components/game/GameFields.vue";
 import StaticGameFieldsMapPicker from "@/components/StaticGameFieldsMapPicker.vue";
 import CountyService from "@/services/CountyService";
 import GameService from "@/services/GameService";
+import Navigation from "@/navigation/Navigation";
 
 export default {
   components: {
@@ -110,8 +113,8 @@ export default {
             gameId: 0,
             countyName: '',
             locationName: '',
-            locationLat: 0,
-            locationLng: 0,
+            locationLat: Number,
+            locationLng: Number,
             status: ''
           }
         ]
@@ -126,18 +129,18 @@ export default {
     };
   },
 
-  computed: {
-    hasPlayedGames() {
-      return Array.isArray(this.playedGames) && this.playedGames.length > 0;
-    }
-  },
-
 
   methods: {
 
     handleGetPlayedGames(response) {
       this.gamesInProgressInfo = response.data
       this.availableSlotsNumbers = Array.from({length: this.gamesInProgressInfo.availableSlots});
+      console.log("Loaded game cards:", this.gamesInProgressInfo.gameCards);
+    },
+
+    goToGameView(game) {
+      GameService.sendGetGameRequest(game.gameId)
+      Navigation.navigateToGameView(game.gameId)
     },
 
     getCounties() {

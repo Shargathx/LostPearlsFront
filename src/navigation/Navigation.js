@@ -14,9 +14,12 @@ export default {
       //  router.push({name: 'errorView'})
     },
 
-    navigateToGameView() {
-        router.push({name: 'gameRoute'})
+    navigateToGameView(gameId) {
+        router.push({name: 'gameRoute',
+        query: {gameId: gameId}
+        })
     },
+
     navigateToLocationEditView(locationId) {
         router.push({name: 'locationRoute',
         query: {locationId: locationId}

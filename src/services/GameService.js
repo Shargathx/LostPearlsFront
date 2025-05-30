@@ -14,18 +14,16 @@ export default {
         return axios.patch('/game/started', null, {
             params: {
                 gameId: gameId
-
             }
         })
     },
 
 
-    sendPostGameRequest(locationId, userId) {
+    sendPostGameRequest(countyId, userId) {
         return axios.post('/game', null, {
             params: {
-                locationId: locationId,
+                countyId: countyId,
                 userId: userId
-
             }
         })
     },

@@ -16,6 +16,4 @@ export default {
     sendPutLocationRequest(locationId, locationInfo) {
         return axios.put(`/location/${locationId}`, locationInfo)
     },
-
-
 }

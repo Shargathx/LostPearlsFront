@@ -30,7 +30,7 @@ export default {
         })
     },
 
-    getUSerGamesInProgress() {
+    getUserGamesInProgress() {
         const userId = this.userId || 1;
         return axios.get(`/games/${userId}/games-in-progress`)
             .then(response => response.data)

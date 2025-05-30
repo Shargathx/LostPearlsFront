@@ -74,7 +74,7 @@ export default {
               dateAdded: locationData.dateAdded
             });
 
-            return GameService.getUSerGamesInProgress(userId);
+            return GameService.getUserGamesInProgress(userId);
           })
           .then(gamesResponse => {
             this.$emit("games-updated", gamesResponse.data);

@@ -29,7 +29,8 @@
       </section>
 
 
-      <GameFields :counties="counties"/>
+      <GameFields :counties="counties"
+                  :playedGames="playedGames"/>
 
       <!-- My Played Games -->
       <section class="played-games">
@@ -70,6 +71,7 @@ export default {
   data() {
     return {
       activeGameMarkers: [],
+      playedGames: [],
 
       counties: {
         type: Array,
@@ -84,14 +86,7 @@ export default {
     };
   },
 
-  methods: {
-
-
-
-
-
-
-  },
+  methods: {},
 
   beforeMount() {
     CountyService.getAllCounties()
@@ -102,9 +97,9 @@ export default {
           alert("Failed to load counties.");
         });
 
-    GameService.getUSerGamesInProgress()
+    GameService.getUserGamesInProgress()
         .then(response => {
-          this.counties = response.data;
+          this.playedGames = response.data;
         })
         .catch(() => "Something failed")
   }

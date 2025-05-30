@@ -20,6 +20,7 @@
 <script>
 import CountiesDropdown from "@/county/CountiesDropdown.vue";
 import LocationService from "@/services/LocationService";
+import GameService from "@/services/GameService";
 
 export default {
   name: "AddGameModal",
@@ -55,11 +56,14 @@ export default {
       this.loading = true;
 
       const userId = this.userId || 1;
-      this.sendGetRandomLocation(this.selectedCounty, userId)
+
+      GameService.sendPostGameRequest(this.selectedCounty, userId)
           .then(response => {
             const locationData = response.data;
 
-            const selectedCountyObj = this.counties.find(county => county.countyId === this.selectedCounty);
+            const selectedCountyObj = this.counties.find(
+                county => county.countyId === this.selectedCounty
+            );
 
             this.$emit("game-added", {
               locationName: locationData.locationName || "Unknown Location",
@@ -69,18 +73,19 @@ export default {
               longitude: locationData.longitude,
               dateAdded: locationData.dateAdded
             });
+
+            return GameService.getUSerGamesInProgress(userId);
+          })
+          .then(gamesResponse => {
+            this.$emit("games-updated", gamesResponse.data);
             this.loading = false;
             this.$emit("close");
           })
           .catch(error => {
-            console.error("Failed to get random location:", error);
+            console.error("Failed to submit or fetch games:", error);
             this.loading = false;
           });
-    },
-
-    sendGetRandomLocation(countyId, userId) {
-      return LocationService.sendGetRandomLocationByCounty(countyId, userId)
-    },
+    }
 
 
   },

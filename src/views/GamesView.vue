@@ -56,6 +56,7 @@ import AddLocationModal from "@/components/modal/AddGameModal.vue";
 import GameFields from "@/components/game/GameFields.vue";
 import StaticGameFieldsMapPicker from "@/components/StaticGameFieldsMapPicker.vue";
 import CountyService from "@/services/CountyService";
+import GameService from "@/services/GameService";
 
 export default {
   components: {
@@ -100,6 +101,12 @@ export default {
         .catch(() => {
           alert("Failed to load counties.");
         });
+
+    GameService.getUSerGamesInProgress()
+        .then(response => {
+          this.counties = response.data;
+        })
+        .catch(() => "Something failed")
   }
 
 };

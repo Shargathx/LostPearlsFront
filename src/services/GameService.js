@@ -20,14 +20,21 @@ export default {
     },
 
 
-    sendPostGameRequest(locationId, userId) {
+    sendPostGameRequest(countyId, userId) {
         return axios.post('/game', null, {
             params: {
-                locationId: locationId,
+                countyId: countyId,
                 userId: userId
 
             }
         })
     },
+
+    getUSerGamesInProgress() {
+        const userId = this.userId || 1;
+        return axios.get(`/games/${userId}/games-in-progress`)
+            .then(response => response.data)
+            .catch(() => console.error("Failed to fetch games in progress:"));
+    }
 
 }

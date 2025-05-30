@@ -1,4 +1,6 @@
 <template>
+  <AddGameModal :counties="counties" :modal-is-open="modalIsOpen"/>
+
   <div class="page-grid">
     <section class="content-left">
       <section class="games-completed">
@@ -29,17 +31,30 @@
       </section>
 
 
-      <GameFields v-if="playedGames && playedGames.length >= 0"
-          :counties="counties"
-                  :playedGames="playedGames"/>
+      <section class="initiate-games">
+        <h2>Start a New Game</h2>
+
+        <div class="game-fields justify-content-center">
+          <div v-for="gameCard in gamesInProgressInfo.gameCards" :key="gameCard.gameId"
+               class="game-field"
+               @click=""
+          >
+            <p>{{ gameCard.locationName }}</p>
+            <p>{{ gameCard.countyName }}</p>
+            <p>{{ gameCard.status }}</p>
+          </div>
+          <div v-for="number in availableSlotsNumbers" :key="number" @click="openAddGameModal" class="game-field">
+            <p>blank</p>
+          </div>
+
+
+        </div>
+
+      </section>
 
       <section class="played-games">
-        <h2>My Played Games</h2>
-        <ul>
-          <li v-for="playedGame in playedGames" :key="playedGame.id">
-            {{ playedGame.name }} - Completed: {{ playedGame.completedDate }}
-          </li>
-        </ul>
+
+
       </section>
     </section>
 
@@ -53,6 +68,7 @@
 import GameLocationsGrid from "@/components/game/GameLocationsGrid.vue";
 import LogOutModal from "@/components/modal/LogOutModal.vue";
 import AddLocationModal from "@/components/modal/AddGameModal.vue";
+import AddGameModal from "@/components/modal/AddGameModal.vue";
 import GameFields from "@/components/game/GameFields.vue";
 import StaticGameFieldsMapPicker from "@/components/StaticGameFieldsMapPicker.vue";
 import CountyService from "@/services/CountyService";
@@ -60,6 +76,7 @@ import GameService from "@/services/GameService";
 
 export default {
   components: {
+    AddGameModal,
     StaticGameFieldsMapPicker,
     GameFields,
     GameLocationsGrid,
@@ -69,13 +86,37 @@ export default {
 
   data() {
     return {
+      modalIsOpen: false,
+
+      userId: Number(sessionStorage.getItem("userId")),
+      roleName: sessionStorage.getItem("roleName"),
       activeGameMarkers: [],
       playedGames: [],
 
-      counties: {
-        type: Array,
-        default: () => []
+      counties: [
+        {
+          countyId: 0,
+          countyName: ''
+        }
+      ],
+
+      gamesInProgressInfo: {
+        totalSlots: 0,
+        consumedSlots: 0,
+        availableSlots: 0,
+        isNextSlotAvailable: false,
+        gameCards: [
+          {
+            gameId: 0,
+            countyName: '',
+            locationName: '',
+            locationLat: 0,
+            locationLng: 0,
+            status: ''
+          }
+        ]
       },
+      availableSlotsNumbers: [],
 
 
       completedGames: [
@@ -85,25 +126,51 @@ export default {
     };
   },
 
-  methods: {},
+  computed: {
+    hasPlayedGames() {
+      return Array.isArray(this.playedGames) && this.playedGames.length > 0;
+    }
+  },
+
+
+  methods: {
+
+    handleGetPlayedGames(response) {
+      this.gamesInProgressInfo = response.data
+      this.availableSlotsNumbers = Array.from({length: this.gamesInProgressInfo.availableSlots});
+    },
+
+    getCounties() {
+      CountyService.getAllCounties()
+          .then(response => {
+            this.counties = response.data;
+          })
+          .catch(() => {
+            alert("Failed to load counties.");
+          });
+    },
+
+    getGamesInProgress() {
+      GameService.getUserGamesInProgress(this.userId)
+          .then(response => {
+            this.handleGetPlayedGames(response)
+          })
+          .catch(error => {
+            // todo
+          });
+    },
+
+    openAddGameModal() {
+      this.modalIsOpen = true
+    },
+
+  },
 
   beforeMount() {
-    CountyService.getAllCounties()
-        .then(response => {
-          this.counties = response.data;
-        })
-        .catch(() => {
-          alert("Failed to load counties.");
-        });
+    this.getCounties()
+    this.getGamesInProgress()
 
-    GameService.getUserGamesInProgress()
-        .then(response => {
-          this.playedGames = Array.isArray(response.data) ? response.data : [];
-        })
-        .catch(() => {
-          this.playedGames = [];
-          alert("Failed to load played games.");
-        });
+
   }
 
 };

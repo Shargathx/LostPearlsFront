@@ -30,11 +30,13 @@ export default {
         })
     },
 
-    getUserGamesInProgress() {
-        const userId = this.userId || 1;
-        return axios.get(`/games/${userId}/games-in-progress`)
-            .then(response => response.data)
-            .catch(() => console.error("Failed to fetch games in progress:"));
+
+    getUserGamesInProgress(userId) {
+        return axios.get('/games-in-progress-info', {
+            params: {
+                userId: userId
+            }
+        })
     }
 
 }

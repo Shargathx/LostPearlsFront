@@ -3,7 +3,6 @@
     <h1 class="mb-4">Location Details</h1>
 
     <div class="row">
-      <!-- Left side: Form fields -->
       <div class="col-md-6">
         <div class="row g-3">
           <!-- Row 1 -->
@@ -179,7 +178,7 @@ export default {
 
   data() {
     return {
-      isEditMode: true, // start in edit mode
+      isEditMode: true,
       isViewMode: false,
       userId: Number(sessionStorage.getItem("userId")),
       locationId: 0,

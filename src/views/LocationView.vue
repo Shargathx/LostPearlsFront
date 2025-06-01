@@ -24,7 +24,6 @@
             />
           </div>
 
-          <!-- Row 2 -->
           <div class="col-6">
             <label for="longitude" class="form-label">Longitude</label>
             <input

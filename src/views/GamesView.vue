@@ -1,5 +1,7 @@
 <template>
-  <AddGameModal :counties="counties" :modal-is-open="modalIsOpen"/>
+  <AddGameModal :counties="counties"
+                :modal-is-open="modalIsOpen"
+                @close="modalIsOpen=false"/>
 
   <div class="page-grid">
     <section class="content-left">
@@ -159,7 +161,7 @@ export default {
             this.handleGetPlayedGames(response)
           })
           .catch(error => {
-            // todo
+            alert("Failed to load gamesInProgress.");
           });
     },
 

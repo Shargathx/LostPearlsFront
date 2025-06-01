@@ -10,7 +10,10 @@
       </template>
 
       <template #footer>
-        <button @click="$emit('event-logout-confirmed')" class="btn btn-success mb-5 me-4">Jah</button>
+        <button class="btn btn-success mb-5 me-4"
+                @click="$emit('event-logout-confirmed');
+                $emit('event-close-modal')">Jah
+        </button>
       </template>
 
     </Modal>
@@ -30,7 +33,6 @@ export default {
 </script>
 
 <style>
-
 
 
 </style>

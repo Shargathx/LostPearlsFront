@@ -1,7 +1,6 @@
 <template>
   <div class="container py-4">
     <h1 class="mb-4">Location Details</h1>
-
     <div class="row">
       <div class="col-md-6">
         <div class="row g-3">
@@ -125,10 +124,10 @@
                 v-if="isEditMode"
                 :disabled="duplicateExists || !locationInfoChanged"
                 @click="submitLocation"
-                class="btn btn-primary"
-            >
+                class="btn btn-primary">
               {{ locationId === 0 ? "Submit" : "Save changes" }}
             </button>
+
           </div>
 
           <!-- siin Kaspari lisatud vihjete ja keywordide lisamine -->
@@ -151,6 +150,18 @@
             @update:zoomLevel="setLocationInfoZoomLevel"
             :disabled="!isEditMode"
         />
+        <ImageInput v-if="isEditMode"
+                    class="mt-3" ref="imageInput"
+                    @event-new-image-selected="setLocationImageData"
+                    :disabled="!isEditMode"/>
+        <div>
+          <LocationImage :image-data="locationInfo.imageData"
+                         @open-file-picker="triggerFilePicker"
+                         :disabled="!isEditMode"/>
+        </div>
+      </div>
+      <div>
+
       </div>
     </div>
   </div>
@@ -165,11 +176,15 @@ import CountyService from "@/services/CountyService";
 import {useRoute} from "vue-router";
 import Modal from "@/components/modal/Modal.vue";
 import LocationKeywordsTable from "@/components/location/LocationKeywordsTable.vue";
+import LocationImage from "@/components/location/LocationImage.vue";
+import ImageInput from "@/components/image/ImageInput.vue";
 
 
 export default {
   name: "LocationView",
   components: {
+    ImageInput,
+    LocationImage,
     LocationKeywordsTable,
     Modal,
     MapPicker,
@@ -201,6 +216,7 @@ export default {
         extendedInfo: "",
         question: "",
         answer: "",
+        imageData: ""
       },
 
       originalLocationInfo: {
@@ -333,7 +349,16 @@ export default {
       this.successMessage = "";
       this.errorMessage = "";
     },
+
+    setLocationImageData(imageData) {
+      this.locationInfo.imageData = imageData
+    },
+
+    triggerFilePicker() {
+      this.$refs.imageInput.openFilePicker();
+    },
   },
+
 
   autoResize(event) {
     const textarea = event.target

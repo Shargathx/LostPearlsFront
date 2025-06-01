@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <img v-if=" imageData === null || imageData.length === 0" src="../../assets/558053230b37c6796e94c6df785887ab.jpg" class="img-thumbnail"/>
+  <div @click="$emit('open-file-picker')" style="cursor: pointer">
+    <img v-if=" imageData === null || imageData.length === 0" src="../../assets/AddLocationPlaceholderImage.png" class="img-thumbnail"/>
     <img v-else :src="imageData" class="img-thumbnail">
   </div>
 </template>

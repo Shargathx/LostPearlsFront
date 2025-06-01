@@ -1,6 +1,6 @@
 <template>
   <div class="mb-3">
-    <input class="form-control" type="file" @change="handleImage" accept="image/x-png,image/jpeg,image/gif">
+    <input class="form-control" type="file" ref="file-input" @change="handleImage" accept="image/x-png,image/jpeg,image/gif">
   </div>
 </template>
 
@@ -16,6 +16,10 @@ export default {
     handleImage(event) {
       const selectedImage = event.target.files[0];
       this.emitBase64(selectedImage);
+    },
+
+    openFilePicker() {
+      this.$refs["file-input"].click();
     },
 
     emitBase64(fileObject) {

@@ -32,7 +32,7 @@
           <h5>{{ game.question }}</h5>
         </div>
         <div class="answer-container">
-          <input type="search" v-modal="game.answer" placeholder="Siia kirjuta vastus">
+          <input type="search" :value="''" @input="game.answer = $event.target.value" placeholder="Siia kirjuta vastus">
           <button @click="submitAnswer">Vasta</button>
           <h5>⏳ Timer: {{ formattedElapsedTime() }}</h5>
         </div>
@@ -54,27 +54,6 @@
   </div>
 </template>
 
-<style scoped>
-
-.game-container {
-  display: flex;
-  flex-direction: column; /* Stack elements vertically */
-  align-items: flex-start; /* Align everything to the left */
-}
-.question-container {
-  width: 100%;
-  text-align: left; /* Ensures the question stays on one line */
-  margin-bottom: 10px; /* Adds spacing before the answer box */
-}
-
-.answer-container {
-  display: flex;
-  align-items: center;
-  gap: 15px; /* Adds spacing between elements */
-}
-
-</style>
-
 <script>
 
 import axios from "axios";
@@ -86,6 +65,7 @@ import GameMap from "@/components/GameMap.vue";
 import GameStartedViewView from "@/components/game/GameStartedView.vue";
 import Navigation from "@/navigation/Navigation";
 import HintService from "@/services/HintService";
+import KeywordService from "@/services/KeywordService";
 
 export default {
   name: "GameView",
@@ -110,7 +90,7 @@ export default {
         teaserInfo: '',
         extendedInfo: '',
         question: '',
-        answer: null,
+        answer: '',
         gameStatus: '',
         gameStartMilliseconds: 0,
         gameEndMilliseconds: 0,
@@ -133,6 +113,12 @@ export default {
       availableHints:'',
       hintsPaused: '',
 
+      keywords:[
+        {
+          locationId: '',
+          keyword: '',
+        }
+      ],
 
       errorResponse: {
         message: '',
@@ -174,18 +160,17 @@ export default {
 
     handleStartGameResponse() {
       this.getGame()
-      this.startGameTimer()
       this.fetchHints()
+      this.fetchKeywords()
+      this.startGameTimer();
     },
 
 
     startGameTimer() {
-      let storedTime = localStorage.getItem("gameStartTime");
-      this.game.gameStartMilliseconds = storedTime ? Number(storedTime) : Date.now() ;
-
-      localStorage.setItem("gameStartTime", this.game.gameStartMilliseconds);
-      this.gameElapsedMilliseconds = Date.now() - this.game.gameStartMilliseconds;
+      this.game.gameStartMilliseconds = Date.now();
+      this.gameElapsedMilliseconds = localStorage.getItem("gameElapsedMilliseconds");
       this.nextHintTime = 5000;
+
       this.timerInterval = setInterval(() => {
         this.gameElapsedMilliseconds = Date.now() - this.game.gameStartMilliseconds;
         localStorage.setItem("gameElapsedMilliseconds", this.gameElapsedMilliseconds);
@@ -227,8 +212,15 @@ export default {
     },
 
     fetchHints() {
+      let storedHints = localStorage.getItem("hints");
+      if (storedHints) {
+        this.hints = JSON.parse(storedHints)
+      } else {
       HintService.sendGetHintsRequest(this.game.locationId)
-          .then(response => this.hints = response.data)
+          .then(response => {
+            this.hints = response.data;
+            localStorage.setItem("hints", JSON.stringify((this.hints));
+          })
           .catch(() => alert("Vihjeid pole v6i said otsa. Oled omap2i."));
     },
 
@@ -241,12 +233,74 @@ export default {
       let randomHint = this.hints[Math.floor(Math.random() * this.hints.length)];
       this.selectedHint = randomHint.hint; // Show the selected hint
       this.hintPromptActive = false;
-    }
+    },
+
+    fetchKeywords() {
+      KeywordService.sendGetKeywords(this.game.locationId)
+          .then(response => this.keywords = response.data)
+          .catch(error => {
+        this.someDataBlockErrorResponseObject = error.response.data
+      })
+    },
+
+    submitAnswer() {
+      let userAnswer = this.game.answer.trim();
+      if (!userAnswer) {
+        alert("Palun sisesta vastus!");
+        return;
+      }
+      let answerLower = userAnswer.toLowerCase();
+      let matchedKeyword = null;
+
+      for (let keywordObj of this.keywords){
+        if (keywordObj && typeof keywordObj.keyword === "string") {
+          let keywordLower = keywordObj.keyword.toLowerCase();
+          if (answerLower.includes(keywordLower) || answerLower === keywordLower) {
+            matchedKeyword = keywordLower;
+            break;
+          }
+        }
+      }
+
+      if (matchedKeyword) {
+        alert("Õige vastus!");
+      } else {
+        alert("Vale vastus, proovi uuesti!");
+      }
+    },
+
   },
 
   beforeMount() {
     this.getGame();
+
+    this.gameElapsedMilliseconds = localStorage.getItem("gameElapsedMilliseconds") || 0;
+    this.hints = JSON.parse(localStorage.getItem("hints")) || [];
+    this.keywords = JSON.parse(localStorage.getItem("keywords")) || [];
+
+    this.startGameTimer()
   }
 }
 
 </script>
+
+<style scoped>
+
+.game-container {
+  display: flex;
+  flex-direction: column; /* Stack elements vertically */
+  align-items: flex-start; /* Align everything to the left */
+}
+.question-container {
+  width: 100%;
+  text-align: left; /* Ensures the question stays on one line */
+  margin-bottom: 10px; /* Adds spacing before the answer box */
+}
+
+.answer-container {
+  display: flex;
+  align-items: center;
+  gap: 15px; /* Adds spacing between elements */
+}
+
+</style>

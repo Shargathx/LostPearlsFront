@@ -5,8 +5,11 @@
   <nav>
     <router-link to="/about">Kuidas Mängida</router-link>
     |
-    <router-link to="/games">Mängud</router-link>
-    |
+    <template v-if="isLoggedIn">
+      <router-link to="/games">Mängud</router-link>
+      |
+    </template>
+
     <template v-if="!isLoggedIn">
       <router-link to="/login">Log in</router-link> |
     </template>

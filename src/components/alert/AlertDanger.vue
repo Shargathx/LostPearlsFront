@@ -1,5 +1,5 @@
 <template>
-  <div v-if="errorMessage !== null &&  errorMessage.length > 0" class="alert alert-warning" role="alert">
+  <div v-if="errorMessage !== null &&  errorMessage.length > 0" class="alert alert-warning mx-auto text-center" style="max-width: 350px" role="alert">
     {{ errorMessage }}
   </div>
 </template>
@@ -12,3 +12,11 @@ export default {
   }
 }
 </script>
+
+
+<style scoped>
+.alert-custom {
+  font-size: 0.85rem;
+  padding: 0.25rem 0.5rem;
+}
+</style>

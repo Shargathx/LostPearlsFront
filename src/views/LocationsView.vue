@@ -2,7 +2,7 @@
   <div class="container text-center">
     <div class="row justify-content-center">
       <div class="col-12">
-        <h2>MINU SISESTATUD ASUKOHAD</h2>
+        <h2>Minu lisatud asukohad</h2>
       </div>
     </div>
     <div class="row">

@@ -1,44 +1,43 @@
 <template>
-  <div class="min-h-screen bg-gray-100">
+  <div class="min-h-screen bg-gray-100 d-flex justify-content-center align-items-center">
     <div class="bg-white p-6 rounded-lg shadow-md w-96">
       <h2 class="text-2xl font-bold mb-4">Register</h2>
 
-      <form @submit.prevent="register" class="space-y-6">
+      <form @submit.prevent="register">
 
-        <div>
-          <AlertDanger :error-message="errorMessage"/>
+        <div class="mb-3">
+          <AlertDanger :error-message="errorMessage" />
         </div>
 
-        <div class="flex flex-col space-y-2 justify-content-end">
-          <label class="block mb-4 text-left me-2" for="username">Username</label>
-          <input v-model="user.username" type="text" id="username" placeholder="John_Smith"
-                 class="w-full p-2 border rounded" required/>
+        <div class="d-flex align-items-center mb-3">
+          <label for="username" class="form-label me-3 fixed-label text-end">Username</label>
+          <input v-model="user.username" type="text" id="username" placeholder="John_Smith" class="form-control" required />
         </div>
 
-
-        <div class="flex fuserol space-y-2">
-          <label class="bluserb-4 text-left me-2" for="password">Password</label>
-          <input v-model="user.password" type="password" id="password" class="w-full p-2 border rounded" required/>
+        <div class="d-flex align-items-center mb-3">
+          <label for="password" class="form-label me-3 fixed-label text-end">Password</label>
+          <input v-model="user.password" type="password" id="password" class="form-control" required />
         </div>
 
-        <div class="flex fuserol space-y-2">
-          <label class="bluserb-4 text-left me-2" for="confirmPassword">Confirm Password</label>
-          <input v-model="confirmPassword" type="password" id="confirmPassword" class="w-full p-2 border rounded"
-                 required/>
+        <div class="d-flex align-items-center mb-3">
+          <label for="confirmPassword" class="form-label me-3 fixed-label text-end">Confirm Password</label>
+          <input v-model="user.confirmPassword" type="password" id="confirmPassword" class="form-control" required />
         </div>
 
-        <div class="flex fuserol space-y-2">
-          <label class="bluserb-4 text-left me-2" for="email">Email Address</label>
-          <input v-model="user.email" type="email" id="email" placeholder="john.smith@gmail.com"
-                 class="w-full p-2 border rounded" required/>
+        <div class="d-flex align-items-center mb-3">
+          <label for="email" class="form-label me-3 fixed-label text-end">Email Address</label>
+          <input v-model="user.email" type="email" id="email" placeholder="john.smith@gmail.com" class="form-control" required />
         </div>
 
-        <button type="submit" class="btn btn-outline-success">Register</button>
+        <button type="submit" class="btn btn-outline-success w-100">Register</button>
+
       </form>
-
     </div>
   </div>
 </template>
+
+
+
 
 <script>
 import Navigation from "@/navigation/Navigation";
@@ -49,12 +48,11 @@ export default {
   components: {AlertDanger},
   data() {
     return {
-      confirmPassword: "",
-
       user: {
         username: "",
         email: "",
         password: "",
+        confirmPassword: "",
       },
 
       successMessage: '',
@@ -69,13 +67,28 @@ export default {
   methods: {
 
     register() {
-      this.errorMessage = "";
-      if (this.passwordsMatch()) {
-        this.errorMessage = "Passwords do not match.";
-      } else {
-        this.registerNewUser()
+      if (!this.allFieldsAreWithCorrectInput()) {
+        this.errorMessage = "Please fill all fields correctly (username > 3 chars, password >= 3 chars).";
+        return;
       }
 
+      if (!this.passwordsMatch()) {
+        this.errorMessage = "Passwords do not match.";
+        return;
+      }
+      this.errorMessage = "";
+      this.registerNewUser();
+    },
+
+    allFieldsAreWithCorrectInput() {
+      const username = this.user.username;
+      const password = this.user.password;
+      const usernamePattern = /^[A-Za-z][A-Za-z0-9]*$/;
+      return (
+          username.length > 3 &&
+          usernamePattern.test(username) &&
+          password.length >= 3
+      )
     },
 
     registerNewUser() {
@@ -91,7 +104,7 @@ export default {
           });
     },
     passwordsMatch() {
-      return this.user.password !== this.confirmPassword;
+      return this.user.password === this.user.confirmPassword;
     },
 
   },
@@ -101,5 +114,12 @@ export default {
 </script>
 
 <style scoped>
-/* Basic responsive styling */
+.fixed-label {
+  width: 30%;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  white-space: normal;
+  padding-top: 0.50rem; /* adjust this value */
+}
 </style>

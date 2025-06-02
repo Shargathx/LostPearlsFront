@@ -5,9 +5,9 @@
         <h2>Minu lisatud asukohad</h2>
       </div>
     </div>
-    <div class="row">
-      <div class="col">
-        <button @click="navigateToAddLocationView()" style="float: right">Lisa asukoht</button>
+    <div class="">
+      <div class="col mb-3">
+        <button class="justify-content-center btn btn btn-info" @click="navigateToAddLocationView()">Lisa asukoht</button>
       </div>
 
     </div>

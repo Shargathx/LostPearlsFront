@@ -6,9 +6,15 @@ export default {
         router.push({name: 'loginRoute'})
     },
 
+    navigateToRegistration() {
+        router.push({name: 'registration'})
+    },
+
     navigateToGamesView(){
         router.push({name: 'gamesRoute'})
     },
+
+
 
     navigateToErrorView() {
       //  router.push({name: 'errorView'})

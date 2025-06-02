@@ -19,6 +19,14 @@ export default {
         })
     },
 
+    sendPatchGameCompletedRequest(gameId) {
+        return axios.patch('/game/completed', null, {
+                params: {
+                    gameId: gameId,
+                }
+            })
+    },
+
 
     sendPostGameRequest(countyId, userId) {
         return axios.post('/game', null, {

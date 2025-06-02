@@ -37,8 +37,11 @@
           <h5>⏳ Timer: {{ formattedElapsedTime() }}</h5>
         </div>
       </div>
+      <div v-if="isGameComplete">
+        <h2>Sinu tulemus on {{game.points}}</h2>
+      </div>
     </div>
-    <div class="row">
+    <div v-if="isGameStarted" class="row">
       <div v-if="hintPromptActive" class="hint-prompt">
         <p>Kas sa soovid vihjet?</p>
         <button @click="offerHint">Jah</button>
@@ -50,6 +53,9 @@
       <div v-if="hintsPaused" class="request-hint">
         <button @click="resumeHints">Küsi vihjet</button>
       </div>
+    </div>
+    <div v-if="isGameComplete">
+
     </div>
   </div>
 </template>
@@ -100,6 +106,7 @@ export default {
         lat: 58.6662,
         lng: 25.5824,
         zoomLevel: 0,
+        hintsUsed: '',
       },
 
       hints: [
@@ -230,8 +237,10 @@ export default {
         return;
       }
 
-      let randomHint = this.hints[Math.floor(Math.random() * this.hints.length)];
-      this.selectedHint = randomHint.hint; // Show the selected hint
+      let randomIndex = Math.floor(Math.random() * this.hints.length);
+      this.selectedHint = this.hints[randomIndex].hint;
+      this.hints.splice(randomIndex,1); // Remove used hint
+      this.game.hintsUsed++;// Increment hint count
       this.hintPromptActive = false;
     },
 
@@ -240,7 +249,7 @@ export default {
       if (storedKeywords) {
         this.keywords = JSON.parse(storedKeywords);
       } else {
-        KeywordService.sendGetKeywords(this.game.locationId)
+        KeywordService.sendGetKeywordsRequest(this.game.locationId)
           .then(response => this.keywords = response.data)
           .catch(error => this.someDataBlockErrorResponseObject = error.response.data)
       }
@@ -267,9 +276,16 @@ export default {
 
       if (matchedKeyword) {
         alert("Õige vastus!");
+        this.endGame()
       } else {
         alert("Vale vastus, proovi uuesti!");
       }
+    },
+
+    endGame() {
+      GameService.sendPatchGameCompletedRequest(this.gameId)
+          .then(response => this.game = response.data)
+          .catch(error => this.someDataBlockErrorResponseObject = error.response.data)
     },
 
   },

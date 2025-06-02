@@ -162,6 +162,7 @@
             @update:zoomLevel="setLocationInfoZoomLevel"
             :disabled="!isEditMode"
         />
+        <br>
         <AlertDanger :error-message="alertImageMissingMessage"/>
         <ImageInput v-if="isEditMode"
                     class="mt-3" ref="imageInput"
@@ -462,3 +463,5 @@ export default {
 <style scoped>
 /* Add your component styles here */
 </style>
+
+

@@ -54,7 +54,6 @@
               <div class="overlay-text">
                 <p>{{ gameCard.locationName }}</p>
                 <p>{{ gameCard.countyName }}</p>
-                <p>{{ gameCard.status }}</p>
               </div>
             </div>
           </div>
@@ -280,7 +279,7 @@ export default {
   opacity: 0;
   transition: opacity 0.3s ease;
   display: flex;
-  align-items: flex-end; /* Keep text at bottom */
+  align-items: center; /* <-- CHANGE THIS */
   justify-content: center;
   border-radius: 12px;
   padding: 1rem;

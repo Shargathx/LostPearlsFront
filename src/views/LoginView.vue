@@ -6,24 +6,25 @@
       <div class="col-md-6 col-lg-4 login-card">
         <div class="card shadow-lg">
           <div class="card-body p-4">
-            <h4 class="card-title text-center mb-4">Logi sisse</h4>
+            <h4 class="card-title text-center mb-4">Log in</h4>
 
             <AlertDanger v-if="errorMessage" :error-message="errorMessage" class="mb-3"/>
 
             <form @submit.prevent="login">
               <div class="mb-3">
-                <label class="form-label">Kasutajanimi või e-mail</label>
+                <label class="form-label">Username or email</label>
                 <input v-model="loginName" type="text" class="form-control" required/>
               </div>
 
               <div class="mb-3">
-                <label class="form-label">Parool</label>
+                <label class="form-label">Password</label>
                 <input v-model="password" type="password" class="form-control" required/>
               </div>
 
               <div class="justify-content-center mt-3">
-                <button type="submit" class="btn btn-success">Logi sisse</button>
-                <button type="button" @click="navigateToRegistration" class="btn btn-outline-primary ms-3">Registreeri
+                <button type="submit" class="btn btn-success">Log in</button>
+                <button type="button" @click="navigateToRegistration" class="btn btn-outline-primary ms-3">
+                  Register
                 </button>
               </div>
             </form>

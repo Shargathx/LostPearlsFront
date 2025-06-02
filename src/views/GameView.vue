@@ -32,7 +32,7 @@
           <h5>{{ game.question }}</h5>
         </div>
         <div class="answer-container">
-          <input type="search" :value="''" @input="game.answer = $event.target.value" placeholder="Siia kirjuta vastus">
+          <input type="search" v-model="game.answer" placeholder="Siia kirjuta vastus">
           <button @click="submitAnswer">Vasta</button>
           <h5>⏳ Timer: {{ formattedElapsedTime() }}</h5>
         </div>
@@ -256,18 +256,21 @@ export default {
     },
 
     submitAnswer() {
-      let userAnswer = this.game.answer.trim();
+      console.log("User answer:", this.game.answer);
+      console.log("Keywords:", this.keywords);
+
+      let userAnswer = this.game.answer?.trim();
       if (!userAnswer) {
         alert("Palun sisesta vastus!");
         return;
       }
       let answerLower = userAnswer.toLowerCase();
-      let matchedKeyword = null;
 
-      for (let keywordObj of this.keywords){
+      let matchedKeyword = null;
+      for (let keywordObj of this.keywords) {
         if (keywordObj && typeof keywordObj.keyword === "string") {
           let keywordLower = keywordObj.keyword.toLowerCase();
-          if (answerLower.includes(keywordLower) || answerLower === keywordLower) {
+          if (answerLower.includes(keywordLower)) {
             matchedKeyword = keywordLower;
             break;
           }
@@ -276,11 +279,12 @@ export default {
 
       if (matchedKeyword) {
         alert("Õige vastus!");
-        this.endGame()
+        this.endGame();
       } else {
         alert("Vale vastus, proovi uuesti!");
       }
     },
+
 
     endGame() {
       GameService.sendPatchGameCompletedRequest(this.gameId)

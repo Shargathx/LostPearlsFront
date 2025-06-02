@@ -48,9 +48,8 @@
 
           </div>
           <div v-for="number in availableSlotsNumbers" :key="number" @click="openAddGameModal"
-               class="game-field justify-content-center">
-            <!--            <img src="https://cdn3.emoji.gg/emojis/82146-skulltoppray.png">-->
-            <p>blank</p>
+               class="game-field justify-content-center mt-2">
+            <p class="justify-content-center">Add new Game</p>
           </div>
 
 

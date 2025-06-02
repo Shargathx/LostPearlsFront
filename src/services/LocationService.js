@@ -18,6 +18,8 @@ export default {
         return axios.put(`/location/${locationId}`, locationInfo)
     },
 
+
+
     sendGetUserLocationsRequest(userId) {
         return axios.get('/locations/all', {
                 params: {

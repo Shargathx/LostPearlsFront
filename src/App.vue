@@ -78,7 +78,7 @@ export default {
   beforeMount() {
     // update Navigation menu (depending if logged in/out etc, what to show etc)
     this.updateNavMenu()
-  }
+  },
 
 };
 

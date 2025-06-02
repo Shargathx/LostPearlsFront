@@ -1,28 +1,33 @@
 <template>
-  <div class="container mt-5 d-flex justify-content-center">
-    <div class="col-md-6 col-lg-4">
-      <div class="card shadow-lg">
-        <div class="card-body p-4">
-          <h4 class="card-title text-center mb-4">Logi sisse</h4>
+  <div class="login-view-wrapper">
+    <BackgroundSlideshow/>
 
-          <AlertDanger v-if="errorMessage" :error-message="errorMessage" class="mb-3" />
+    <div class="login-page-container d-flex justify-content-center align-items-center">
+      <div class="col-md-6 col-lg-4 login-card">
+        <div class="card shadow-lg">
+          <div class="card-body p-4">
+            <h4 class="card-title text-center mb-4">Logi sisse</h4>
 
-          <form @submit.prevent="login">
-            <div class="mb-3">
-              <label class="form-label">Kasutajanimi või e-mail</label>
-              <input v-model="loginName" type="text" class="form-control" required>
-            </div>
+            <AlertDanger v-if="errorMessage" :error-message="errorMessage" class="mb-3"/>
 
-            <div class="mb-3">
-              <label class="form-label">Parool</label>
-              <input v-model="password" type="password" class="form-control" required>
-            </div>
+            <form @submit.prevent="login">
+              <div class="mb-3">
+                <label class="form-label">Kasutajanimi või e-mail</label>
+                <input v-model="loginName" type="text" class="form-control" required/>
+              </div>
 
-            <div class="justify-content-center mt-3">
-              <button type="submit" class="btn btn-success">Logi sisse</button>
-              <button type="button" @click="navigateToRegistration" class="btn btn-outline-primary ms-3">Registreeri</button>
-            </div>
-          </form>
+              <div class="mb-3">
+                <label class="form-label">Parool</label>
+                <input v-model="password" type="password" class="form-control" required/>
+              </div>
+
+              <div class="justify-content-center mt-3">
+                <button type="submit" class="btn btn-success">Logi sisse</button>
+                <button type="button" @click="navigateToRegistration" class="btn btn-outline-primary ms-3">Registreeri
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
     </div>
@@ -30,17 +35,17 @@
 </template>
 
 
-
 <script>
 import AlertDanger from "@/components/alert/AlertDanger.vue";
 import LoginService from "@/services/LoginService";
 import Navigation from "@/navigation/Navigation";
 import ErrorCodes from "@/errors/ErrorCodes";
+import BackgroundSlideshow from "@/components/BackgroundSlideshow.vue";
 
 
 export default {
   name: "LoginView",
-  components: {AlertDanger},
+  components: {AlertDanger, BackgroundSlideshow},
   data() {
     return {
       loginName: '',
@@ -59,6 +64,7 @@ export default {
       }
     }
   },
+
   methods: {
 
     login() {
@@ -110,3 +116,12 @@ export default {
 </script>
 
 
+<style scoped>
+
+.card {
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(4px);
+  margin-top: 75px; /* pushes the whole container down */
+}
+
+</style>

@@ -7,6 +7,7 @@ import ErrorView from "@/views/ErrorView.vue";
 import LocationView from "@/views/LocationView.vue";
 import GameView from "@/views/GameView.vue";
 import LocationsView from "@/views/LocationsView.vue";
+import AboutView from "@/views/AboutView.vue";
 
 const routes = [
     {
@@ -54,6 +55,11 @@ const routes = [
         path: '/locations',
         name: 'locationsRoute',
         component: LocationsView
+    },
+    {
+        path: '/about',
+        name: 'aboutRoute',
+        component: AboutView
     }
 
 ]

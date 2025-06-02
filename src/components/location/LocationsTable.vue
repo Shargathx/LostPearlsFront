@@ -15,7 +15,7 @@
         <td class="p-2">{{ userLocation.locationName }}</td>
         <td class="p-2">{{ userLocation.countyName }}</td>
         <td class="p-2">{{ userLocation.teaser }}</td>
-        <td class="p-2">{{ userLocation.dateAdded}}</td>
+        <td class="p-2">{{ userLocation.dateAdded }}</td>
         <td>
           <button
               class="btn btn-info me-1 ms-1"

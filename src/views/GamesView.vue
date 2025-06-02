@@ -1,12 +1,13 @@
 <template>
-  <AddGameModal :counties="counties"
-                :modal-is-open="modalIsOpen"
-                @event-game-added="handleEventGameAdded"
-                @close="modalIsOpen=false" />
+  <AddGameModal
+      :counties="counties"
+      :modal-is-open="modalIsOpen"
+      @event-game-added="handleEventGameAdded"
+      @close="modalIsOpen = false"
+  />
 
   <div class="page-grid">
     <section class="content-left">
-      <!-- Completed Games -->
       <section class="games-completed">
         <h2>Games Completed (Stats)</h2>
         <table>
@@ -27,46 +28,60 @@
         </table>
       </section>
 
-      <!-- Game Cards -->
+      <!-- THE GAME Placeholder -->
+      <section class="the-game">
+        <div>
+          <GameLocationsGrid />
+        </div>
+      </section>
+
       <section class="initiate-games">
         <h2>Start a New Game</h2>
+
         <div class="game-fields">
-          <!-- Game in Progress -->
           <div
               v-for="gameCard in gamesInProgressInfo.gameCards"
               :key="gameCard.gameId"
               class="thumbnail-container"
               @click="goToGameView(gameCard)"
           >
-            <img :src="gameCard.locationImageData" alt="Location Image" class="thumbnail" />
-            <div class="overlay-text">
-              <p>{{ gameCard.locationName }}</p>
-              <p>{{ gameCard.countyName }}</p>
-              <p>{{ gameCard.status }}</p>
+            <img
+                :src="gameCard.locationImageData"
+                alt="Location Image"
+                class="thumbnail"
+            />
+            <div class="overlay">
+              <div class="overlay-text">
+                <p>{{ gameCard.locationName }}</p>
+                <p>{{ gameCard.countyName }}</p>
+                <p>{{ gameCard.status }}</p>
+              </div>
             </div>
           </div>
 
-          <!-- Add new Game slot -->
+          <!-- Add new game slot -->
           <div
-              v-for="number in availableSlotsNumbers"
-              :key="number"
-              class="thumbnail-container empty-slot"
+              class="thumbnail-container"
               @click="openAddGameModal"
+              role="button"
+              tabindex="0"
+              aria-label="Add new Game"
           >
-            <div class="thumbnail add-thumbnail">
-              <span>+ Add Game</span>
-            </div>
+            <div class="add-thumbnail">+</div>
           </div>
         </div>
       </section>
+
+      <section class="played-games"></section>
     </section>
 
-    <!-- Right-side map -->
     <aside class="content-right">
       <StaticGameFieldsMapPicker :gameCards="gamesInProgressInfo.gameCards" />
     </aside>
   </div>
 </template>
+
+
 <script>
 import GameLocationsGrid from "@/components/game/GameLocationsGrid.vue";
 import LogOutModal from "@/components/modal/LogOutModal.vue";
@@ -227,17 +242,24 @@ export default {
 .initiate-games .game-fields {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
-  justify-content: flex-start;
+  justify-content: center;
+  gap: 2rem;
+  padding: 2rem;
 }
 
 .thumbnail-container {
   position: relative;
-  width: 180px;
-  height: 120px;
-  border-radius: 6px;
+  width: 320px;  /* increased width */
+  height: 200px; /* increased height */
+  border-radius: 12px;
   overflow: hidden;
   cursor: pointer;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s ease;
+}
+
+.thumbnail-container:hover {
+  transform: scale(1.05);
 }
 
 .thumbnail {
@@ -245,34 +267,53 @@ export default {
   height: 100%;
   object-fit: cover;
   display: block;
-  border-radius: 6px;
+  border-radius: 12px;
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5); /* Darken whole image */
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  display: flex;
+  align-items: flex-end; /* Keep text at bottom */
+  justify-content: center;
+  border-radius: 12px;
+  padding: 1rem;
 }
 
 .overlay-text {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: rgba(0, 0, 0, 0.6);
   color: white;
-  padding: 0.4rem 0.6rem;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  font-size: 0.85rem;
+  font-size: 1.2rem;
+  font-weight: bold;
   text-align: center;
 }
 
+
 .thumbnail-container:hover .overlay-text {
+  opacity: 1;
+}
+
+.thumbnail-container:hover .overlay {
   opacity: 1;
 }
 
 .add-thumbnail {
   background-color: #e0e0e0;
   color: #333;
-  font-size: 1rem;
+  font-size: 2rem;
   display: flex;
   align-items: center;
   justify-content: center;
   height: 100%;
+  width: 100%;
+  border-radius: 12px;
+  font-weight: bold;
 }
+
+
 </style>

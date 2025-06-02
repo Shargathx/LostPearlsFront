@@ -19,10 +19,11 @@ export default {
         })
     },
 
-    sendPatchGameCompletedRequest(gameId) {
+    sendPatchGameCompletedRequest(gameId, hintsUsed) {
         return axios.patch('/game/completed', null, {
                 params: {
                     gameId: gameId,
+                    hintsUsed: hintsUsed
                 }
             })
     },

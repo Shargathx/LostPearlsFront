@@ -1,24 +1,24 @@
 <template>
   <div>
-    <table class="table-striped table-hover table-bordered">
+    <table class="table-striped table-hover table-bordered me-2">
       <thead>
         <tr>
-          <th  scope="col">Nimi</th>
+          <th scope="col">Nimi</th>
           <th scope="col">Maakond</th>
           <th scope="col">Lühiinfo</th>
           <th scope="col">Lisatud kuupäev</th>
-          <th scope="col">nupp</th>
+          <th scope="col">Detailne vaade</th>
           <!--<th scope="col">Hinne</th>-->
         </tr>
       </thead>
       <tbody>
         <tr v-for="userLocation in userLocations" :key="userLocation.locationId">
-          <td>{{userLocation.locationName}}</td>
-          <td>{{userLocation.countyName}}</td>
-          <td>{{userLocation.teaser}}</td>
-          <td>{{userLocation.dateAdded}}</td>
+          <td class="p-2">{{userLocation.locationName}}</td>
+          <td class="p-2">{{userLocation.countyName}}</td>
+          <td class="p-2">{{userLocation.teaser}}</td>
+          <td class="p-2">{{userLocation.dateAdded}}</td>
           <td>
-            <button @click="navigateToLocationView(userLocation.locationId)">Vaata</button></td>
+            <button class="btn btn-info me-1 ms-1" @click="navigateToLocationView(userLocation.locationId)">Vaata</button></td>
           <!-- mis hrefi? , vaja oleks et läheks valitud asukohta!!-->
           <!--<a href='/location/" + locationId' @click="Navigation.navigateToLocationView(locationId)">  </a>-->
         </tr>

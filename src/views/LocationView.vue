@@ -115,8 +115,7 @@
             <button
                 v-if="isViewMode"
                 @click="switchToEdit"
-                class="btn btn-secondary"
-            >
+                class="btn btn-secondary">
               Edit
             </button>
             <button
@@ -126,7 +125,12 @@
                 class="btn btn-primary">
               {{ locationId === 0 ? "Submit" : "Save changes" }}
             </button>
-
+            <button
+                v-if="isEditMode"
+                @click="cancelEdit"
+                class="btn btn-outline-secondary ms-2">
+              Cancel
+            </button>
           </div>
 
           <!-- siin Kaspari lisatud vihjete ja keywordide lisamine -->
@@ -344,6 +348,13 @@ export default {
           });
     },
 
+    cancelEdit() {
+      this.locationInfo = {...this.originalLocationInfo};
+      this.resetAllMessages();
+      this.isEditMode = false;
+      this.isViewMode = true;
+    },
+
     resetAllMessages() {
       this.successMessage = "";
       this.errorMessage = "";
@@ -354,7 +365,11 @@ export default {
     },
 
     triggerFilePicker() {
-      this.$refs.imageInput.openFilePicker();
+      if (this.$refs.imageInput && typeof this.$refs.imageInput.openFilePicker === 'function') {
+        this.$refs.imageInput.openFilePicker();
+      } else {
+        console.warn('Image input is not available or openFilePicker method missing.');
+      }
     },
   },
 

@@ -39,11 +39,13 @@
         <div class="game-fields justify-content-center">
           <div v-for="gameCard in gamesInProgressInfo.gameCards" :key="gameCard.gameId"
                class="game-field justify-content-center"
-               @click="goToGameView(gameCard)"
-          >
+               @click="goToGameView(gameCard)">
+
+<!--            <p>{{gameCard.imageData}}</p>-->
             <p>{{ gameCard.locationName }}</p>
             <p>{{ gameCard.countyName }}</p>
             <p>{{ gameCard.status }}</p>
+
           </div>
           <div v-for="number in availableSlotsNumbers" :key="number" @click="openAddGameModal"
                class="game-field justify-content-center">
@@ -293,6 +295,7 @@ export default {
   border-radius: 6px;
   cursor: pointer;
   display: flex;
+  flex-direction: column;
   gap: 0.5rem;
   align-items: center;
   background-color: #fff;

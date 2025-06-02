@@ -10,17 +10,20 @@
     <div class="row justify-content-center">
       <div class="col col-2">
 
-        <div class="mb-3">
-          <label class="form-label">Kasutajanimi või parool</label>
-          <input v-model="loginName" type="text" class="form-control">
-        </div>
+        <form @submit.prevent="login">
+          <div class="mb-3">
+            <label class="form-label">Kasutajanimi või parool</label>
+            <input v-model="loginName" type="text" class="form-control">
+          </div>
 
-        <div class="mb-3">
-          <label class="form-label">Parool</label>
-          <input v-model="password" type="password" class="form-control">
-        </div>
+          <div class="mb-3">
+            <label class="form-label">Parool</label>
+            <input v-model="password" type="password" class="form-control">
+          </div>
 
-        <button @click="login" type="submit" class="btn btn-outline-success">Logi sisse</button>
+          <button @click="login" type="submit" class="btn btn-outline-success">Logi sisse</button>
+        </form>
+
 
       </div>
     </div>
@@ -59,15 +62,7 @@ export default {
   methods: {
 
     login() {
-      if (this.allFieldsAreWithCorrectInput()) {
-        this.sendLoginRequest()
-      } else {
-        this.errorMessage = 'Palun täida kõik väljad!'
-      }
-    },
-
-    allFieldsAreWithCorrectInput() {
-      return this.loginName.length > 3 && this.password.length >= 3
+      this.sendLoginRequest()
     },
 
     sendLoginRequest() {
@@ -91,23 +86,23 @@ export default {
       this.handleIncorrectCredentials(httpStatusCode);
     },
 
-    handleIncorrectCredentials(httpStatusCode){
-      if(this.isIncorrectCredentials(httpStatusCode)){
+    handleIncorrectCredentials(httpStatusCode) {
+      if (this.isIncorrectCredentials(httpStatusCode)) {
         this.errorMessage = this.errorResponse.message
       } else {
         alert('k6ik on jumala pekkis')
       }
     },
 
-    isIncorrectCredentials(httpStatusCode){
+    isIncorrectCredentials(httpStatusCode) {
       return httpStatusCode === 403 && this.errorResponse.errorCode === ErrorCodes.CODE_INCORRECT_CREDENTIALS;
 
     },
 
 
-    }
-
   }
+
+}
 </script>
 
 

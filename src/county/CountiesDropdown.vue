@@ -7,13 +7,15 @@
             id="countyId" class="form-select">
 
       <option disabled value="0">Please select a county</option>
-      <option v-for="county in counties" :key="county.id" :value="county.id">{{ county.name }}</option>
+      <option v-for="county in counties" :key="county.countyId" :value="county.countyId">{{ county.countyName }}</option>
     </select>
   </div>
 </template>
 
 
 <script>
+import CountyService from "@/services/CountyService";
+
 export default {
   name: "CountiesDropdown",
 
@@ -27,14 +29,7 @@ export default {
 
   data() {
     return {
-      counties: [
-        {id: 1, name: "Harjumaa"},
-        {id: 2, name: "Hiiumaa"},
-        {id: 3, name: "Põlva"},
-        {id: 4, name: "Rapla"},
-        {id: 5, name: "Viljandi"},
-        {id: 6, name: "Võrumaa"},
-      ],
+      counties: [],
     };
   },
 
@@ -44,5 +39,12 @@ export default {
       this.$emit("event-new-county-selected", newValue);
     },
   },
+
+  beforeMount() {
+    CountyService.getAllCounties()
+        .then(response => this.counties = response.data)
+        .catch(error => console.error("Error fetching counties:", error));
+    console.log(this.counties);
+  }
 }
 </script>

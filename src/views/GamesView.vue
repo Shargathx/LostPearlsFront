@@ -1,26 +1,9 @@
 <template>
+  <AddGameModal :counties="counties"
+                :modal-is-open="modalIsOpen"
+                @close="modalIsOpen=false"/>
+
   <div class="page-grid">
-    <!-- Banner -->
-    <header class="banner justify-content-center">
-      <h1>My Game Dashboard</h1>
-    </header>
-
-    <!-- Navigation Bar -->
-    <nav class="navbar">
-      <div class="nav-left">
-        <!-- Could add a logo here or leave empty -->
-      </div>
-      <div class="nav-center">
-        <button v-for="btn in navButtons" :key="btn.id" class="nav-btn">
-          {{ btn.label }}
-        </button>
-      </div>
-      <div class="nav-right">
-        <button @click="goToProfile">My Profile</button>
-        <button @click="">Log Out</button>
-      </div>
-    </nav>
-
     <section class="content-left">
       <section class="games-completed">
         <h2>Games Completed (Stats)</h2>
@@ -45,122 +28,159 @@
       <!-- THE GAME Placeholder -->
       <section class="the-game">
         <div>
-          <GameLocationsGrid />
+          <GameLocationsGrid/>
         </div>
       </section>
 
-      <!-- Initiate Games Fields -->
+
       <section class="initiate-games">
         <h2>Start a New Game</h2>
-        <div class="game-fields">
-          <div
-              v-for="(field, index) in initiateFields"
-              :key="index"
-              class="game-field"
-              @click="openAddLocation(index)"
+
+        <div class="game-fields justify-content-center">
+          <div v-for="gameCard in gamesInProgressInfo.gameCards" :key="gameCard.gameId"
+               class="game-field justify-content-center"
+               @click="goToGameView(gameCard)"
           >
-            <div class="thumbnail">
-              <img
-                  src="actual-image.jpg"
-                  onerror="this.onerror=null; this.src='https://cdn3.emoji.gg/emojis/82146-skulltoppray.png';"
-                  style="max-width: 100%; height: auto;"
-                  alt="image"
-              />
-            </div>
-            <div class="info">
-              <p><strong>Name:</strong> {{ field.name || 'Click to add' }}</p>
-              <p><strong>County:</strong> {{ field.county || 'Click to add' }}</p>
-            </div>
+            <p>{{ gameCard.locationName }}</p>
+            <p>{{ gameCard.countyName }}</p>
+            <p>{{ gameCard.status }}</p>
           </div>
+          <div v-for="number in availableSlotsNumbers" :key="number" @click="openAddGameModal"
+               class="game-field justify-content-center">
+            <!--            <img src="https://cdn3.emoji.gg/emojis/82146-skulltoppray.png">-->
+            <p>blank</p>
+          </div>
+
+
         </div>
+
       </section>
 
-      <!-- My Played Games -->
       <section class="played-games">
-        <h2>My Played Games</h2>
-        <ul>
-          <li v-for="playedGame in playedGames" :key="playedGame.id">
-            {{ playedGame.name }} - Completed: {{ playedGame.completedDate }}
-          </li>
-        </ul>
+
+
       </section>
     </section>
 
-    <!-- Right Side Map Picker -->
     <aside class="content-right">
-      <StaticMapPicker :markers="activeGameMarkers"/>
+      <StaticGameFieldsMapPicker :gameCards="gamesInProgressInfo.gameCards"/>
     </aside>
   </div>
 </template>
 
-<script setup>
-import {onMounted, ref} from 'vue'
-import StaticMapPicker from "@/components/StaticMapPicker.vue";
+<script>
 import GameLocationsGrid from "@/components/game/GameLocationsGrid.vue";
 import LogOutModal from "@/components/modal/LogOutModal.vue";
+import AddLocationModal from "@/components/modal/AddGameModal.vue";
+import AddGameModal from "@/components/modal/AddGameModal.vue";
+import GameFields from "@/components/game/GameFields.vue";
+import StaticGameFieldsMapPicker from "@/components/StaticGameFieldsMapPicker.vue";
+import CountyService from "@/services/CountyService";
+import GameService from "@/services/GameService";
+import Navigation from "@/navigation/Navigation";
 
-// Nav buttons placeholders
-const navButtons = ref([
-  {id: 1, label: 'Home'},
-  {id: 2, label: 'Games'},
-  {id: 3, label: 'Settings'},
-])
+export default {
+  components: {
+    AddGameModal,
+    StaticGameFieldsMapPicker,
+    GameFields,
+    GameLocationsGrid,
+    LogOutModal,
+    AddLocationModal,
+  },
 
-// Completed games stats placeholder
-const completedGames = ref([
-  {id: 101, name: 'Game A', completedDate: '2024-04-15', score: 85},
-  {id: 102, name: 'Game B', completedDate: '2024-05-10', score: 92},
-])
+  data() {
+    return {
+      modalIsOpen: false,
 
-// Initiate game fields, initially empty
-const initiateFields = ref([
-  {name: '', county: '', image: ''},
-  {name: '', county: '', image: ''},
-  {name: '', county: '', image: ''},
-])
+      userId: Number(sessionStorage.getItem("userId")),
+      roleName: sessionStorage.getItem("roleName"),
+      activeGameMarkers: [],
+      playedGames: [],
 
-const placeholderImage = 'https://cdn3.emoji.gg/emojis/82146-skulltoppray.png'
+      counties: [
+        {
+          countyId: 0,
+          countyName: ''
+        }
+      ],
 
-// Played games from backend (dummy fetch)
-const playedGames = ref([])
+      gamesInProgressInfo: {
+        totalSlots: 0,
+        consumedSlots: 0,
+        availableSlots: 0,
+        isNextSlotAvailable: false,
+        gameCards: [
+          {
+            gameId: 0,
+            countyName: '',
+            locationName: '',
+            locationLat: Number,
+            locationLng: Number,
+            status: ''
+          }
+        ]
+      },
+      availableSlotsNumbers: [],
 
-// Active game markers for MapPicker
-const activeGameMarkers = ref([])
 
-// Simulated fetch on mounted
-onMounted(() => {
-  fetchPlayedGames()
-})
+      completedGames: [
+        {id: 101, name: "Game A", completedDate: "2024-04-15", score: 85},
+        {id: 102, name: "Game B", completedDate: "2024-05-10", score: 92},
+      ],
+    };
+  },
 
-function fetchPlayedGames() {
-  // Dummy async fetch, replace with real API call
-  setTimeout(() => {
-    playedGames.value = [
-      {id: 201, name: 'Adventure Quest', completedDate: '2024-01-20'},
-      {id: 202, name: 'Mystery Island', completedDate: '2024-03-05'},
-    ]
 
-    // For map markers, simulate from playedGames or active games
-    activeGameMarkers.value = [
-      {id: 1, lat: 40.7128, lng: -74.006, label: 'Adventure Quest'},
-      {id: 2, lat: 34.0522, lng: -118.2437, label: 'Mystery Island'},
-    ]
-  }, 500)
-}
+  methods: {
 
-function openAddLocation(index) {
-  // Logic to open modal or navigate to add location page
-  alert(`Open Add Location modal/page for field ${index + 1}`)
-}
+    handleGetPlayedGames(response) {
+      this.gamesInProgressInfo = response.data
+      this.availableSlotsNumbers = Array.from({length: this.gamesInProgressInfo.availableSlots});
+      console.log("Loaded game cards:", this.gamesInProgressInfo.gameCards);
+    },
 
-function goToProfile() {
-  alert('Go to My Profile page')
-}
+    goToGameView(game) {
+      GameService.sendGetGameRequest(game.gameId)
+      Navigation.navigateToGameView(game.gameId)
+    },
 
-function logout() {
-  alert('Logging out...')
-}
+    getCounties() {
+      CountyService.getAllCounties()
+          .then(response => {
+            this.counties = response.data;
+          })
+          .catch(() => {
+            alert("Failed to load counties.");
+          });
+    },
+
+    getGamesInProgress() {
+      GameService.getUserGamesInProgress(this.userId)
+          .then(response => {
+            this.handleGetPlayedGames(response)
+          })
+          .catch(error => {
+            alert("Failed to load gamesInProgress.");
+          });
+    },
+
+    openAddGameModal() {
+      this.modalIsOpen = true
+    },
+
+  },
+
+  beforeMount() {
+    this.getCounties()
+    this.getGamesInProgress()
+
+
+  }
+
+};
 </script>
+
 
 <style scoped>
 .page-grid {
@@ -306,4 +326,38 @@ function logout() {
 .played-games li {
   margin-bottom: 0.3rem;
 }
+
+.game-field {
+  position: relative;
+  cursor: pointer;
+}
+
+.plus-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 48px;
+  color: green;
+  font-weight: bold;
+  pointer-events: none; /* so clicks pass through */
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  user-select: none;
+}
+
+.game-field.empty-slot:hover .plus-overlay {
+  opacity: 1;
+}
+
+/* Optional: a nice plus sign using ::before */
+.plus-overlay::before {
+  content: '+';
+}
+
 </style>

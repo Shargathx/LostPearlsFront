@@ -8,13 +8,14 @@
     <router-link to="/games">Mängud</router-link>
     |
     <template v-if="!isLoggedIn">
-      <router-link to="/login">Log in</router-link>|
+      <router-link to="/login">Log in</router-link> |
     </template>
     <template v-if="isLoggedIn">
       <router-link to="/locations">Minu asukohad</router-link>|
     </template>
-
-    <font-awesome-icon @click="startLogOutProcess" class="cursor-pointer just" icon="right-from-bracket"/>
+    <template v-if="isLoggedIn">
+      <font-awesome-icon @click="startLogOutProcess" class="cursor-pointer just" icon="right-from-bracket"/>
+    </template>
 
   </nav>
   <router-view @event-update-nav-menu="updateNavMenu"/>
@@ -52,7 +53,7 @@ export default {
     executeLogOut() {
       sessionStorage.clear()
       localStorage.clear()
-      //TODO: update Navigation menu (show logIn, hide profile/logout etc)
+      this.updateNavMenu()
       Navigation.navigateToLoginView()
     },
 

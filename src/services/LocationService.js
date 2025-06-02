@@ -1,4 +1,5 @@
 import axios from "axios";
+import Navigation from "@/navigation/Navigation";
 
 export default {
 
@@ -25,4 +26,11 @@ export default {
             }
         );
     },
+
+    sendGetRandomLocationByCounty(countyId, userId) {
+        return axios.get('/random_location', {
+            params: {countyId, userId}})
+    },
+
+
 }

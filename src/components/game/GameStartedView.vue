@@ -1,6 +1,6 @@
 <template>
   <h5>{{ game.question }}</h5>
-  <input v-model="game.answer" placeholder="Ideaalis v6iks vastuse siia kirjutada" />
+  <input type="search" v-modal="game.answer" placeholder="Siia kirjuta vastus">
   <button @click="submitAnswer">Vasta</button>
 </template>
 
@@ -15,7 +15,8 @@ export default {
         hint: '',
       }
     ],
-    game: Object
+    game: Object,
+    isGameStarted: false
 
   }
 }

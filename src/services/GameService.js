@@ -20,14 +20,23 @@ export default {
     },
 
 
-    sendPostGameRequest(locationId, userId) {
+    sendPostGameRequest(countyId, userId) {
         return axios.post('/game', null, {
             params: {
-                locationId: locationId,
+                countyId: countyId,
                 userId: userId
 
             }
         })
     },
+
+
+    getUserGamesInProgress(userId) {
+        return axios.get('/games-in-progress-info', {
+            params: {
+                userId: userId
+            }
+        })
+    }
 
 }

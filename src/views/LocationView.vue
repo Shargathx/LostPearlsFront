@@ -1,9 +1,7 @@
 <template>
   <div class="container py-4">
     <h1 class="mb-4">Location Details</h1>
-
     <div class="row">
-      <!-- Left side: Form fields -->
       <div class="col-md-6">
         <div class="row g-3">
           <!-- Row 1 -->
@@ -26,7 +24,6 @@
             />
           </div>
 
-          <!-- Row 2 -->
           <div class="col-6">
             <label for="longitude" class="form-label">Longitude</label>
             <input
@@ -126,17 +123,17 @@
                 v-if="isEditMode"
                 :disabled="duplicateExists || !locationInfoChanged"
                 @click="submitLocation"
-                class="btn btn-primary"
-            >
+                class="btn btn-primary">
               {{ locationId === 0 ? "Submit" : "Save changes" }}
             </button>
+
           </div>
 
           <!-- siin Kaspari lisatud vihjete ja keywordide lisamine -->
           <div class="col-12">
             <label v-if="this.isViewMode"> Keywords </label>
             <LocationKeywordsTable v-if="this.isViewMode" :keywords="keywords" :location-id="locationId"
-              @event-keyword-deleted="getLocationKeywords"
+                                   @event-keyword-deleted="getLocationKeywords"
             />
           </div>
         </div>
@@ -153,6 +150,18 @@
             @update:zoomLevel="setLocationInfoZoomLevel"
             :disabled="!isEditMode"
         />
+        <ImageInput v-if="isEditMode"
+                    class="mt-3" ref="imageInput"
+                    @event-new-image-selected="setLocationImageData"
+                    :disabled="!isEditMode"/>
+        <div>
+          <LocationImage :image-data="locationInfo.imageData"
+                         @open-file-picker="triggerFilePicker"
+                         :disabled="!isEditMode"/>
+        </div>
+      </div>
+      <div>
+
       </div>
     </div>
   </div>
@@ -167,6 +176,8 @@ import CountyService from "@/services/CountyService";
 import {useRoute} from "vue-router";
 import Modal from "@/components/modal/Modal.vue";
 import LocationKeywordsTable from "@/components/location/LocationKeywordsTable.vue";
+import LocationImage from "@/components/location/LocationImage.vue";
+import ImageInput from "@/components/image/ImageInput.vue";
 import KeywordService from "@/services/KeywordService";
 import DeleteKeywordModal from "@/components/modal/DeleteKeywordModal.vue";
 
@@ -175,6 +186,8 @@ export default {
   name: "LocationView",
   components: {
     DeleteKeywordModal,
+    ImageInput,
+    LocationImage,
     LocationKeywordsTable,
     Modal,
     MapPicker,
@@ -183,7 +196,7 @@ export default {
 
   data() {
     return {
-      isEditMode: true, // start in edit mode
+      isEditMode: true,
       isViewMode: false,
       userId: Number(sessionStorage.getItem("userId")),
       locationId: 0,
@@ -199,13 +212,14 @@ export default {
       locationInfo: {
         countyId: 0,
         locationName: "",
-        longitude: 24.7536,        zoomlevel: 12,
-
+        zoomlevel: 12,
+        longitude: 24.7536,
         latitude: 59.437,
         teaser: "",
         extendedInfo: "",
         question: "",
         answer: "",
+        imageData: ""
       },
 
       originalLocationInfo: {
@@ -235,6 +249,7 @@ export default {
         locationId: 0,
         keyword: ""
       },
+
 
       keywords: [
         {
@@ -349,7 +364,16 @@ export default {
       this.successMessage = "";
       this.errorMessage = "";
     },
+
+    setLocationImageData(imageData) {
+      this.locationInfo.imageData = imageData
+    },
+
+    triggerFilePicker() {
+      this.$refs.imageInput.openFilePicker();
+    },
   },
+
 
   autoResize(event) {
     const textarea = event.target
@@ -362,10 +386,9 @@ export default {
     this.isEditMode = !this.isViewMode;
 
     if (this.isViewMode) {
-      this.locationId = Number(useRoute().query.locationId);
-      this.getLocation();
+      this.locationId = Number(useRoute().query.locationId)
+      this.getLocation()
       this.getLocationKeywords()
-
     }
   },
 };

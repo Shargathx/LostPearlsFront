@@ -55,7 +55,8 @@ export default {
   methods: {
     getUserLocations() {
       LocationService.sendGetUserLocationsRequest(this.userId)
-          .then(response => this.userLocations = response.data);
+          .then(response => this.userLocations = response.data)
+          .catch(() => alert("Your current locations are empty"));
     },
     navigateToAddLocationView() {
       Navigation.navigateToLocationView();

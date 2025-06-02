@@ -17,10 +17,9 @@
         <td class="p-2">{{ userLocation.teaser }}</td>
         <td class="p-2">{{ userLocation.dateAdded }}</td>
         <td>
-          <button
+          <button v-if="userLocations && userLocation.locationId"
               class="btn btn-info me-1 ms-1"
-              @click="navigateToLocationView(userLocation.locationId)"
-          >
+              @click="navigateToLocationView(userLocation.locationId)">
             Go to
           </button>
         </td>

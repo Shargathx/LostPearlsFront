@@ -9,7 +9,7 @@
       />
 
       <div class="modal-buttons">
-        <button @click="$emit('close')" class="btn-cancel">Cancel</button>
+        <button @click="$emit('close')" class="btn btn-warning">Cancel</button>
         <button
             @click="submit"
             :disabled="!selectedCounty || loading"

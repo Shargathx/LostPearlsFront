@@ -1,7 +1,8 @@
 <template>
   <AddGameModal :counties="counties"
                 :modal-is-open="modalIsOpen"
-                @event-game-added="handleEventGameAdded"/>
+                @event-game-added="handleEventGameAdded"
+                @close="modalIsOpen=false"/>
 
   <div class="page-grid">
     <section class="content-left">
@@ -41,7 +42,7 @@
                class="game-field justify-content-center"
                @click="goToGameView(gameCard)">
 
-<!--            <p>{{gameCard.imageData}}</p>-->
+            <!--            <p>{{gameCard.imageData}}</p>-->
             <p>{{ gameCard.locationName }}</p>
             <p>{{ gameCard.countyName }}</p>
             <p>{{ gameCard.status }}</p>

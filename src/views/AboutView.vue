@@ -1,6 +1,7 @@
 <template>
 <div class="row justify-content-center">
-  <div class="col-6">
+  <div class="col-6 mt-4">
+
     <h2>Selecting a Game:</h2>
     <p>
       Go to the Games page. In the Start New Games section, your active games will be displayed. As a new user, no games will be shown yet. You can play up to three games at once.

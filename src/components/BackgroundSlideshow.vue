@@ -19,7 +19,9 @@ export default {
       images: [
         require('@/assets/backgroundloops/austria-6398889_1920.jpg'),
         require('@/assets/backgroundloops/beach-8262340_1920.jpg'),
-        require('@/assets/backgroundloops/factory-3337207_1920.jpg')
+        require('@/assets/backgroundloops/factory-3337207_1920.jpg'),
+        require('@/assets/backgroundloops/558053230b37c6796e94c6df785887ab.jpg'),
+        require('@/assets/backgroundloops/empty_thumbnail.jpg')
       ],
       currentIndex: 0,
       isFading: false,
@@ -63,9 +65,10 @@ export default {
   height: 100%;
   background-size: cover;
   background-position: center;
-  filter: blur(2px); /* Small blur */
+  filter: blur(4px); /* Small blur */
   transition: opacity 3s ease-in-out;
   opacity: 1;
+  transform: scale(1.02); /* slightly scale slide div to overflow edges */
 }
 
 .fade-enter-active,

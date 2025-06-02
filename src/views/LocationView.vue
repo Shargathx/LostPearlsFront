@@ -1,5 +1,12 @@
 <template>
   <div class="container py-4">
+
+
+    <AddKeywordModal :modal-is-open="addKeywordModalIsOpen"
+                     @event-execute-add-keyword="executeAddNewKeyword"
+                     @event-close-modal="closeAddKeywordModal"
+    />
+
     <h1 class="mb-4">Location Details</h1>
     <div class="row">
       <div class="col-md-6">
@@ -130,9 +137,10 @@
           </div>
 
           <!-- siin Kaspari lisatud vihjete ja keywordide lisamine -->
-          <div class="col-12">
-            <label v-if="this.isViewMode"> Keywords </label>
-            <LocationKeywordsTable v-if="this.isViewMode" :keywords="keywords" :location-id="locationId"
+          <div v-if="this.isViewMode" class="col-12 mb-3 mt-5">
+           <AlertDanger :error-message="alertMessage" />
+            <button class="btn btn-success mb-3" @click="viewAddKeywordModal">Add keywords</button>
+            <LocationKeywordsTable v-if="this.isViewMode" :keywords="keywords"
                                    @event-keyword-deleted="getLocationKeywords"
             />
           </div>
@@ -180,11 +188,15 @@ import LocationImage from "@/components/location/LocationImage.vue";
 import ImageInput from "@/components/image/ImageInput.vue";
 import KeywordService from "@/services/KeywordService";
 import DeleteKeywordModal from "@/components/modal/DeleteKeywordModal.vue";
+import AddKeywordModal from "@/components/modal/AddKeywordModal.vue";
+import AlertDanger from "@/components/alert/AlertDanger.vue";
 
 
 export default {
   name: "LocationView",
   components: {
+    AlertDanger,
+    AddKeywordModal,
     DeleteKeywordModal,
     ImageInput,
     LocationImage,
@@ -200,6 +212,8 @@ export default {
       isViewMode: false,
       userId: Number(sessionStorage.getItem("userId")),
       locationId: 0,
+      addKeywordModalIsOpen: false,
+      alertMessage: '',
 
       zoomLevel: 12,
 
@@ -293,14 +307,23 @@ export default {
 
     getLocation() {
       LocationService.sendGetLocationRequest(this.locationId)
-          .then((response) => this.handleGetLocationResponse(response))
+          .then(response => this.handleGetLocationResponse(response))
           .catch(() => Navigation.navigateToErrorView());
     },
 
     getLocationKeywords() {
       KeywordService.sendGetKeywordsRequest(this.locationId)
-          .then((response) => this.keywords = response.data)
+          .then(response => this.handleGetLocationKeywordsResponse(response))
           .catch(() => Navigation.navigateToErrorView());
+    },
+    handleGetLocationKeywordsResponse(response) {
+      this.keywords = response.data
+      if (this.keywords.length === 0) {
+        this.alertMessage = 'At least one keyword is mandatory'
+      } else {
+        this.alertMessage = ''
+
+      }
     },
 
     switchToEdit() {
@@ -372,13 +395,36 @@ export default {
     triggerFilePicker() {
       this.$refs.imageInput.openFilePicker();
     },
-  },
 
 
-  autoResize(event) {
-    const textarea = event.target
-    textarea.style.height = 'auto'
-    textarea.style.height = textarea.scrollHeight + 'px'
+    autoResize(event) {
+      const textarea = event.target
+      textarea.style.height = 'auto'
+      textarea.style.height = textarea.scrollHeight + 'px'
+    },
+
+
+    //  keyword asjad
+    viewAddKeywordModal() {
+      this.addKeywordModalIsOpen = true
+    },
+
+    closeAddKeywordModal() {
+      this.addKeywordModalIsOpen = false
+    },
+
+    executeAddNewKeyword(newKeyword) {
+      this.keyword.keyword = newKeyword
+      this.keyword.locationId = this.locationId
+      KeywordService.sendAddKeywordRequest(this.keyword)
+          .then(() => {
+            this.addKeywordModalIsOpen = false
+            this.keyword.keyword = ''
+            this.getLocationKeywords()
+          })
+          .catch(() => Navigation.navigateToErrorView())
+    },
+
   },
 
   beforeMount() {

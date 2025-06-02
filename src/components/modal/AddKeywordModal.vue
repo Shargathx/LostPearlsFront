@@ -1,23 +1,27 @@
 <template>
   <div>
-    <modal :modal-is-open="modalIsOpen" @event-close-modal="$emit('event-close-modal')">
+    <Modal :modal-is-open="modalIsOpen" @event-close-modal="$emit('event-close-modal')">
+
+      <template #title>
+        <span>Add keyword</span>
+      </template>
+
 
       <template #body>
         <div class="container text-center">
           <div class="row justify-content-center">
-            <div class="col">
-              <h5>Lisa võtmesõna:</h5>
-              <input type="text" class="form-control" id="keyword">
+            <div class="col col-5">
+              <input v-model="newKeyword" type="text" class="form-control">
             </div>
           </div>
         </div>
       </template>
 
-      <template #buttons>
+      <template #footer>
         <button @click="executeAddKeyword" class="btn btn-success">Lisa</button>
       </template>
 
-    </modal>
+    </Modal>
   </div>
 </template>
 
@@ -28,15 +32,19 @@ export default {
   name: "AddKeywordModal",
   components: {Modal},
   props:{
-    modalIsOpen: Boolean,
-    //todo ei saa hästi aru
-    keyword: Object
+    modalIsOpen: Boolean
 
+  },
+  data() {
+    return {
+      newKeyword: ''
+    }
   },
 
   methods:{
     executeAddKeyword() {
-      this.$emit('event-execute-add-keyword')
+      this.$emit('event-execute-add-keyword', this.newKeyword)
+      this.newKeyword = ''
     },
   }
 }

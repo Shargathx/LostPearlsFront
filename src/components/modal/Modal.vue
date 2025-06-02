@@ -4,7 +4,7 @@
     <div v-if="modalIsOpen" class="modal-overlay">
       <div class="modal-container">
         <div class="modal-content">
-          <div class="modal-header mt-4">
+          <div class="modal-header">
             <h1 class="modal-title fs-5">
               <slot name="title"></slot>
             </h1>
@@ -13,8 +13,8 @@
           <div class="modal-body">
             <slot name="body"></slot>
           </div>
-          <div class="modal-footer mt-3">
-            <button type="button" class="btn btn-secondary me-2 mb-5" @click="$emit('event-close-modal')">Sulge</button>
+          <div class="modal-footer mt-3 mb-3">
+            <button type="button" class="btn btn-secondary me-2" @click="$emit('event-close-modal')">Sulge</button>
             <slot name="footer"></slot>
           </div>
         </div>

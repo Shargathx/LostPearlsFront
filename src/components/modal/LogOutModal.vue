@@ -10,7 +10,7 @@
       </template>
 
       <template #footer>
-        <button class="btn btn-success mb-5 me-4"
+        <button class="btn btn-success me-4"
                 @click="$emit('event-logout-confirmed');
                 $emit('event-close-modal')">Jah
         </button>

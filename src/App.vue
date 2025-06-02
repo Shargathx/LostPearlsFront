@@ -7,15 +7,15 @@
 
   <nav class="bg-white py-3 shadow-sm">
     <div class="container d-flex justify-content-center align-items-center gap-4 flex-wrap">
-      <router-link class="nav-link px-2 fw-semibold fs-5" to="/about">Kuidas Mängida</router-link>
+      <router-link class="nav-link px-2 fw-semibold fs-5" to="/about">How to play</router-link>
 
       <template v-if="isLoggedIn">
-        <router-link class="nav-link px-2 fw-semibold fs-5" to="/games">Mängud</router-link>
-        <router-link class="nav-link px-2 fw-semibold fs-5" to="/locations">Minu asukohad</router-link>
+        <router-link class="nav-link px-2 fw-semibold fs-5" to="/games">Games</router-link>
+        <router-link class="nav-link px-2 fw-semibold fs-5" to="/locations">My locations</router-link>
       </template>
 
       <template v-else>
-        <router-link class="nav-link px-2 fw-semibold fs-5" to="/login">Logi sisse</router-link>
+        <router-link class="nav-link px-2 fw-semibold fs-5" to="/login">Log in</router-link>
       </template>
 
       <template v-if="isLoggedIn">

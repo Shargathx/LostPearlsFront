@@ -2,12 +2,12 @@
   <div class="container text-center">
     <div class="row justify-content-center">
       <div class="col-12">
-        <h2>Minu lisatud asukohad</h2>
+        <h2>Locations added by me</h2>
       </div>
     </div>
     <div class="">
       <div class="col mb-3">
-        <button class="justify-content-center btn btn btn-info" @click="navigateToAddLocationView()">Lisa asukoht</button>
+        <button class="justify-content-center btn btn btn-info" @click="navigateToAddLocationView()">Add location</button>
       </div>
 
     </div>

@@ -3,11 +3,11 @@
     <table class="table-striped table-hover table-bordered me-2">
       <thead>
         <tr>
-          <th scope="col">Nimi</th>
-          <th scope="col">Maakond</th>
-          <th scope="col">Lühiinfo</th>
-          <th scope="col">Lisatud kuupäev</th>
-          <th scope="col">Detailne vaade</th>
+          <th scope="col">Name</th>
+          <th scope="col">County</th>
+          <th scope="col">Description</th>
+          <th scope="col">Date added</th>
+          <th scope="col">Location</th>
           <!--<th scope="col">Hinne</th>-->
         </tr>
       </thead>
@@ -18,7 +18,7 @@
           <td class="p-2">{{userLocation.teaser}}</td>
           <td class="p-2">{{userLocation.dateAdded}}</td>
           <td>
-            <button class="btn btn-info me-1 ms-1" @click="navigateToLocationView(userLocation.locationId)">Vaata</button></td>
+            <button class="btn btn-info me-1 ms-1" @click="navigateToLocationView(userLocation.locationId)">Go to</button></td>
           <!-- mis hrefi? , vaja oleks et läheks valitud asukohta!!-->
           <!--<a href='/location/" + locationId' @click="Navigation.navigateToLocationView(locationId)">  </a>-->
         </tr>

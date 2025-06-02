@@ -1,35 +1,35 @@
 <template>
-  <div>
+  <div class="container mt-5 d-flex justify-content-center">
+    <div class="col-md-6 col-lg-4">
+      <div class="card shadow-lg">
+        <div class="card-body p-4">
+          <h4 class="card-title text-center mb-4">Logi sisse</h4>
 
-    <div class="row justify-content-center">
-      <div class="col col-4">
-        <AlertDanger :error-message="errorMessage"/>
-      </div>
-    </div>
+          <AlertDanger v-if="errorMessage" :error-message="errorMessage" class="mb-3" />
 
-    <div class="row justify-content-center">
-      <div class="col col-2">
+          <form @submit.prevent="login">
+            <div class="mb-3">
+              <label class="form-label">Kasutajanimi või e-mail</label>
+              <input v-model="loginName" type="text" class="form-control" required>
+            </div>
 
-        <form @submit.prevent="login">
-          <div class="mb-3">
-            <label class="form-label">Kasutajanimi või parool</label>
-            <input v-model="loginName" type="text" class="form-control">
-          </div>
+            <div class="mb-3">
+              <label class="form-label">Parool</label>
+              <input v-model="password" type="password" class="form-control" required>
+            </div>
 
-          <div class="mb-3">
-            <label class="form-label">Parool</label>
-            <input v-model="password" type="password" class="form-control">
-          </div>
-
-          <button @click="login" type="submit" class="btn btn-outline-success">Logi sisse</button>
-        </form>
-
-
+            <div class="justify-content-center mt-3">
+              <button type="submit" class="btn btn-success">Logi sisse</button>
+              <button type="button" @click="navigateToRegistration" class="btn btn-outline-primary ms-3">Registreeri</button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   </div>
-
 </template>
+
+
 
 <script>
 import AlertDanger from "@/components/alert/AlertDanger.vue";
@@ -97,6 +97,10 @@ export default {
     isIncorrectCredentials(httpStatusCode) {
       return httpStatusCode === 403 && this.errorResponse.errorCode === ErrorCodes.CODE_INCORRECT_CREDENTIALS;
 
+    },
+
+    navigateToRegistration() {
+      Navigation.navigateToRegistration()
     },
 
 

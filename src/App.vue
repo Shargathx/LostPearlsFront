@@ -1,28 +1,37 @@
 <template>
-  <LogOutModal :modal-is-open="modalIsOpen"
-               @event-close-modal="closeModal"
-               @event-logout-confirmed="executeLogOut"/>
-  <nav>
-    <router-link to="/about">Kuidas Mängida</router-link>
-    |
-    <template v-if="isLoggedIn">
-      <router-link to="/games">Mängud</router-link>
-      |
-    </template>
+  <LogOutModal
+      :modal-is-open="modalIsOpen"
+      @event-close-modal="closeModal"
+      @event-logout-confirmed="executeLogOut"
+  />
 
-    <template v-if="!isLoggedIn">
-      <router-link to="/login">Log in</router-link> |
-    </template>
-    <template v-if="isLoggedIn">
-      <router-link to="/locations">Minu asukohad</router-link>|
-    </template>
-    <template v-if="isLoggedIn">
-      <font-awesome-icon @click="startLogOutProcess" class="cursor-pointer just" icon="right-from-bracket"/>
-    </template>
+  <nav class="bg-white py-3 shadow-sm">
+    <div class="container d-flex justify-content-center align-items-center gap-4 flex-wrap">
+      <router-link class="nav-link px-2 fw-semibold fs-5" to="/about">Kuidas Mängida</router-link>
 
+      <template v-if="isLoggedIn">
+        <router-link class="nav-link px-2 fw-semibold fs-5" to="/games">Mängud</router-link>
+        <router-link class="nav-link px-2 fw-semibold fs-5" to="/locations">Minu asukohad</router-link>
+      </template>
+
+      <template v-else>
+        <router-link class="nav-link px-2 fw-semibold fs-5" to="/login">Logi sisse</router-link>
+      </template>
+
+      <template v-if="isLoggedIn">
+        <font-awesome-icon
+            @click="startLogOutProcess"
+            class="ms-4 text-danger cursor-pointer fs-4"
+            icon="right-from-bracket"
+            title="Logi välja"
+        />
+      </template>
+    </div>
   </nav>
-  <router-view @event-update-nav-menu="updateNavMenu"/>
+
+  <router-view @event-update-nav-menu="updateNavMenu" />
 </template>
+
 
 
 <script>

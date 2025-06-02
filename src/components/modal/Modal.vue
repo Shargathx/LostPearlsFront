@@ -15,7 +15,7 @@
           </div>
           <div class="modal-footer mt-3">
             <button type="button" class="btn btn-secondary me-2" @click="$emit('event-close-modal')">Sulge</button>
-            <slot name="footer"></slot>
+            <slot name="buttons"></slot>
           </div>
         </div>
       </div>

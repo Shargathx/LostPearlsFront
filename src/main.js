@@ -3,8 +3,7 @@ import App from './App.vue'
 import router from './router'
 import VueAxios from "vue-axios";
 import axios from "axios";
-
-// import '@/assets/css/style.css' - kui on oma style.css fail
+import '@/assets/css/style.css'
 // bootstrap
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap/dist/js/bootstrap.js"

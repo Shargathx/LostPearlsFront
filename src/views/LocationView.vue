@@ -134,9 +134,10 @@
 
           <!-- siin Kaspari lisatud vihjete ja keywordide lisamine -->
           <div class="col-12">
-            <label> Answer keywords </label>
-            <LocationKeywordsTable :keywords="keywords"/>
-            <Modal :modal-is-open="false"></Modal>
+            <label v-if="this.isViewMode"> Keywords </label>
+            <LocationKeywordsTable v-if="this.isViewMode" :keywords="keywords" :location-id="locationId"
+              @event-keyword-deleted="getLocationKeywords"
+            />
           </div>
         </div>
       </div>
@@ -167,11 +168,13 @@ import {useRoute} from "vue-router";
 import Modal from "@/components/modal/Modal.vue";
 import LocationKeywordsTable from "@/components/location/LocationKeywordsTable.vue";
 import KeywordService from "@/services/KeywordService";
+import DeleteKeywordModal from "@/components/modal/DeleteKeywordModal.vue";
 
 
 export default {
   name: "LocationView",
   components: {
+    DeleteKeywordModal,
     LocationKeywordsTable,
     Modal,
     MapPicker,
@@ -196,8 +199,8 @@ export default {
       locationInfo: {
         countyId: 0,
         locationName: "",
-        zoomlevel: 12,
-        longitude: 24.7536,
+        longitude: 24.7536,        zoomlevel: 12,
+
         latitude: 59.437,
         teaser: "",
         extendedInfo: "",
@@ -226,6 +229,11 @@ export default {
       coordinatesErrorMessage: {
         latitude: "",
         longitude: "",
+      },
+
+      keyword: {
+        locationId: 0,
+        keyword: ""
       },
 
       keywords: [
@@ -274,9 +282,8 @@ export default {
           .catch(() => Navigation.navigateToErrorView());
     },
 
-    /// todo
     getLocationKeywords() {
-      KeywordService.sendGetKeywordRequest(this.locationId)
+      KeywordService.sendGetKeywordsRequest(this.locationId)
           .then((response) => this.keywords = response.data)
           .catch(() => Navigation.navigateToErrorView());
     },
@@ -357,9 +364,7 @@ export default {
     if (this.isViewMode) {
       this.locationId = Number(useRoute().query.locationId);
       this.getLocation();
-      //todo
       this.getLocationKeywords()
-
 
     }
   },

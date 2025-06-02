@@ -1,7 +1,7 @@
 <template>
   <AddGameModal :counties="counties"
                 :modal-is-open="modalIsOpen"
-                @close="modalIsOpen=false"/>
+                @event-game-added="handleEventGameAdded"/>
 
   <div class="page-grid">
     <section class="content-left">
@@ -135,6 +135,11 @@ export default {
 
 
   methods: {
+
+    handleEventGameAdded() {
+      this.modalIsOpen = false
+      this.getGamesInProgress()
+    },
 
     handleGetPlayedGames(response) {
       this.gamesInProgressInfo = response.data

@@ -2,10 +2,11 @@
   <AddGameModal :counties="counties"
                 :modal-is-open="modalIsOpen"
                 @event-game-added="handleEventGameAdded"
-                @close="modalIsOpen=false"/>
+                @close="modalIsOpen=false" />
 
   <div class="page-grid">
     <section class="content-left">
+      <!-- Completed Games -->
       <section class="games-completed">
         <h2>Games Completed (Stats)</h2>
         <table>
@@ -26,50 +27,46 @@
         </table>
       </section>
 
-      <!-- THE GAME Placeholder -->
-      <section class="the-game">
-        <div>
-          <GameLocationsGrid/>
-        </div>
-      </section>
-
-
+      <!-- Game Cards -->
       <section class="initiate-games">
         <h2>Start a New Game</h2>
-
-        <div class="game-fields justify-content-center">
-          <div v-for="gameCard in gamesInProgressInfo.gameCards" :key="gameCard.gameId"
-               class="game-field justify-content-center"
-               @click="goToGameView(gameCard)">
-
-            <!--            <p>{{gameCard.imageData}}</p>-->
-            <p>{{ gameCard.locationName }}</p>
-            <p>{{ gameCard.countyName }}</p>
-            <p>{{ gameCard.status }}</p>
-
+        <div class="game-fields">
+          <!-- Game in Progress -->
+          <div
+              v-for="gameCard in gamesInProgressInfo.gameCards"
+              :key="gameCard.gameId"
+              class="thumbnail-container"
+              @click="goToGameView(gameCard)"
+          >
+            <img :src="gameCard.locationImageData" alt="Location Image" class="thumbnail" />
+            <div class="overlay-text">
+              <p>{{ gameCard.locationName }}</p>
+              <p>{{ gameCard.countyName }}</p>
+              <p>{{ gameCard.status }}</p>
+            </div>
           </div>
-          <div v-for="number in availableSlotsNumbers" :key="number" @click="openAddGameModal"
-               class="game-field justify-content-center mt-2">
-            <p class="justify-content-center">Add new Game</p>
+
+          <!-- Add new Game slot -->
+          <div
+              v-for="number in availableSlotsNumbers"
+              :key="number"
+              class="thumbnail-container empty-slot"
+              @click="openAddGameModal"
+          >
+            <div class="thumbnail add-thumbnail">
+              <span>+ Add Game</span>
+            </div>
           </div>
-
-
         </div>
-
-      </section>
-
-      <section class="played-games">
-
-
       </section>
     </section>
 
+    <!-- Right-side map -->
     <aside class="content-right">
-      <StaticGameFieldsMapPicker :gameCards="gamesInProgressInfo.gameCards"/>
+      <StaticGameFieldsMapPicker :gameCards="gamesInProgressInfo.gameCards" />
     </aside>
   </div>
 </template>
-
 <script>
 import GameLocationsGrid from "@/components/game/GameLocationsGrid.vue";
 import LogOutModal from "@/components/modal/LogOutModal.vue";
@@ -119,7 +116,8 @@ export default {
             locationName: '',
             locationLat: Number,
             locationLng: Number,
-            status: ''
+            status: '',
+            locationImageData: ''
           }
         ]
       },
@@ -192,65 +190,14 @@ export default {
 <style scoped>
 .page-grid {
   display: grid;
-  grid-template-rows: auto auto 1fr;
   grid-template-columns: 3fr 2fr;
-  grid-template-areas:
-    "banner banner"
-    "navbar navbar"
-    "leftside rightside";
   gap: 1rem;
   height: 100vh;
   padding: 1rem;
   box-sizing: border-box;
-  font-family: Arial, sans-serif;
-}
-
-.banner {
-  grid-area: banner;
-  background-color: #3f51b5;
-  color: white;
-  display: flex;
-  align-items: center;
-  padding: 0 1rem;
-  font-size: 1.5rem;
-  font-weight: bold;
-}
-
-.navbar {
-  grid-area: navbar;
-  background-color: #f0f0f0;
-  display: flex;
-  align-items: center;
-  padding: 0.5rem 1rem;
-  border-bottom: 1px solid #ccc;
-  justify-content: space-between; /* keep left/right spaced */
-}
-
-.nav-left {
-  flex: 1;
-}
-
-.nav-center {
-  flex: 2;
-  display: flex;
-  justify-content: center; /* center the buttons */
-  gap: 1rem;
-}
-
-.nav-right {
-  flex: 1;
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-}
-
-
-.nav-btn:hover {
-  background-color: #ddd;
 }
 
 .content-left {
-  grid-area: leftside;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -259,7 +206,6 @@ export default {
 }
 
 .content-right {
-  grid-area: rightside;
   background-color: #fafafa;
   border-left: 1px solid #ccc;
   padding: 1rem;
@@ -278,94 +224,55 @@ export default {
   text-align: left;
 }
 
-.the-game .placeholder-box {
-  height: 100px;
-  background-color: #e0e0e0;
-  border: 1px dashed #999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #666;
-}
-
 .initiate-games .game-fields {
   display: flex;
+  flex-wrap: wrap;
   gap: 1rem;
+  justify-content: flex-start;
 }
 
-.game-field {
-  flex: 1;
-  border: 1px solid #aaa;
-  padding: 0.5rem;
-  border-radius: 6px;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  align-items: center;
-  background-color: #fff;
-  transition: background-color 0.3s;
-}
-
-.game-field:hover {
-  background-color: #f9f9f9;
-}
-
-.thumbnail img {
-  width: 80px;
-  height: 60px;
-  object-fit: cover;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-}
-
-.info p {
-  margin: 0.2rem 0;
-  font-size: 0.9rem;
-}
-
-.played-games ul {
-  list-style-type: disc;
-  padding-left: 1.5rem;
-  max-height: 200px;
-  overflow-y: auto;
-}
-
-.played-games li {
-  margin-bottom: 0.3rem;
-}
-
-.game-field {
+.thumbnail-container {
   position: relative;
+  width: 180px;
+  height: 120px;
+  border-radius: 6px;
+  overflow: hidden;
   cursor: pointer;
 }
 
-.plus-overlay {
+.thumbnail {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: 6px;
+}
+
+.overlay-text {
   position: absolute;
-  top: 0;
+  bottom: 0;
   left: 0;
   right: 0;
-  bottom: 0;
-  background: rgba(255, 255, 255, 0.6);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 48px;
-  color: green;
-  font-weight: bold;
-  pointer-events: none; /* so clicks pass through */
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  padding: 0.4rem 0.6rem;
   opacity: 0;
   transition: opacity 0.3s ease;
-  user-select: none;
+  font-size: 0.85rem;
+  text-align: center;
 }
 
-.game-field.empty-slot:hover .plus-overlay {
+.thumbnail-container:hover .overlay-text {
   opacity: 1;
 }
 
-/* Optional: a nice plus sign using ::before */
-.plus-overlay::before {
-  content: '+';
+.add-thumbnail {
+  background-color: #e0e0e0;
+  color: #333;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
 }
-
 </style>

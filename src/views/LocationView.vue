@@ -142,7 +142,7 @@
 
           <!-- siin Kaspari lisatud vihjete ja keywordide lisamine -->
           <div v-if="this.isViewMode" class="col-12 mb-3 mt-5">
-           <AlertDanger :error-message="alertKeywordMissingMessage" />
+            <AlertDanger :error-message="alertKeywordMissingMessage"/>
             <button class="btn btn-success mb-3" @click="viewAddKeywordModal">Add keywords</button>
             <LocationKeywordsTable v-if="this.isViewMode" :keywords="keywords"
                                    @event-keyword-deleted="getLocationKeywords"
@@ -213,6 +213,7 @@ export default {
 
   data() {
     return {
+      roleName: sessionStorage.getItem("roleName"),
       isEditMode: true,
       isViewMode: false,
       userId: Number(sessionStorage.getItem("userId")),

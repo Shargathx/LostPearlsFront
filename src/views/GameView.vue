@@ -23,25 +23,25 @@
       </div>
     </div>
     <div class="row">
-      <div  v-if=isGameAdded class="col justify-content-center">
+      <div v-if="game.gameStatus === 'GA'" class="col justify-content-center">
         <button @click="startGame" type="button" class="btn btn-outline-success">START</button>
       </div>
-      <div v-if=isGameStarted class="game-container">
+      <div v-if="game.gameStatus === 'GS'" class="game-container">
         <!--  Midagi mida ehk hiljem kasutada.      <GameStartedView/>-->
         <div class="question-container">
           <h5>{{ game.question }}</h5>
         </div>
         <div class="answer-container">
-          <input type="search" :value="''" @input="game.answer = $event.target.value" placeholder="Siia kirjuta vastus">
+          <input type="search"  @input="game.answer = $event.target.value" placeholder="Siia kirjuta vastus">
           <button @click="submitAnswer">Vasta</button>
           <h5>⏳ Timer: {{ formattedElapsedTime() }}</h5>
         </div>
       </div>
-      <div v-if="isGameComplete">
+      <div v-if="game.gameStatus === 'GC'">
         <h2>Sinu tulemus on {{game.points}}</h2>
       </div>
     </div>
-    <div v-if="isGameStarted" class="row">
+    <div v-if="game.gameStatus === 'GS'" class="row">
       <div v-if="hintPromptActive" class="hint-prompt">
         <p>Kas sa soovid vihjet?</p>
         <button @click="offerHint">Jah</button>
@@ -53,9 +53,6 @@
       <div v-if="hintsPaused" class="request-hint">
         <button @click="resumeHints">Küsi vihjet</button>
       </div>
-    </div>
-    <div v-if="isGameComplete">
-
     </div>
   </div>
 </template>
@@ -72,6 +69,7 @@ import GameStartedViewView from "@/components/game/GameStartedView.vue";
 import Navigation from "@/navigation/Navigation";
 import HintService from "@/services/HintService";
 import KeywordService from "@/services/KeywordService";
+import {text} from "@fortawesome/fontawesome-svg-core";
 
 export default {
   name: "GameView",
@@ -106,7 +104,7 @@ export default {
         lat: 58.6662,
         lng: 25.5824,
         zoomLevel: 0,
-        hintsUsed: '',
+        hintsUsed: 0,
       },
 
       hints: [
@@ -134,6 +132,7 @@ export default {
     }
   },
   methods: {
+    text,
 
 
     getGame() {
@@ -151,6 +150,7 @@ export default {
       this.displayExtendedInfo = this.isGameComplete
 
     },
+
     setGameLatitude(latitude) {
       this.game.lat = latitude;
     },
@@ -222,12 +222,12 @@ export default {
       if (storedHints) {
         this.hints = JSON.parse(storedHints)
       } else {
-      HintService.sendGetHintsRequest(this.game.locationId)
-          .then(response => {
-            this.hints = response.data;
-            localStorage.setItem("hints", JSON.stringify(this.hints))
-          })
-          .catch(() => alert("Vihjeid pole v6i said otsa. Oled omap2i."));
+        HintService.sendGetHintsRequest(this.game.locationId)
+            .then(response => {
+              this.hints = response.data;
+              localStorage.setItem("hints", JSON.stringify(this.hints))
+            })
+            .catch(() => alert("Vihjeid pole v6i said otsa. Oled omap2i."));
       }
     },
 
@@ -239,7 +239,7 @@ export default {
 
       let randomIndex = Math.floor(Math.random() * this.hints.length);
       this.selectedHint = this.hints[randomIndex].hint;
-      this.hints.splice(randomIndex,1); // Remove used hint
+      this.hints.splice(randomIndex, 1); // Remove used hint
       this.game.hintsUsed++;// Increment hint count
       this.hintPromptActive = false;
     },
@@ -250,21 +250,24 @@ export default {
         this.keywords = JSON.parse(storedKeywords);
       } else {
         KeywordService.sendGetKeywordsRequest(this.game.locationId)
-          .then(response => this.keywords = response.data)
-          .catch(error => this.someDataBlockErrorResponseObject = error.response.data)
+            .then(response => {
+              this.keywords = response.data
+              localStorage.setItem("keywords", JSON.stringify(this.keywords))
+            })
+            .catch(error => this.someDataBlockErrorResponseObject = error.response.data)
       }
     },
 
     submitAnswer() {
       let userAnswer = this.game.answer.trim();
-      if (!userAnswer) {
+      if (!userAnswer || userAnswer.length === 0) {
         alert("Palun sisesta vastus!");
         return;
       }
       let answerLower = userAnswer.toLowerCase();
       let matchedKeyword = null;
 
-      for (let keywordObj of this.keywords){
+      for (let keywordObj of this.keywords) {
         if (keywordObj && typeof keywordObj.keyword === "string") {
           let keywordLower = keywordObj.keyword.toLowerCase();
           if (answerLower.includes(keywordLower) || answerLower === keywordLower) {
@@ -276,20 +279,24 @@ export default {
 
       if (matchedKeyword) {
         alert("Õige vastus!");
-        this.endGame()
+        this.endGame();
       } else {
         alert("Vale vastus, proovi uuesti!");
       }
     },
 
     endGame() {
-      GameService.sendPatchGameCompletedRequest(this.gameId)
+      clearInterval(this.timerInterval);
+      GameService.sendPatchGameCompletedRequest(this.gameId, this.game.hintsUsed)
           .then(response => this.game = response.data)
           .catch(error => this.someDataBlockErrorResponseObject = error.response.data)
-    },
+      this.isGameStarted = false;
+      this.isGameComplete = true;
+      this.getGame();
+      document.location.reload()
 
+    }
   },
-
   beforeMount() {
     this.getGame();
 

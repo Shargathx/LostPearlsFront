@@ -165,10 +165,9 @@ export default {
       this.startGameTimer();
     },
 
-
     startGameTimer() {
       this.game.gameStartMilliseconds = Date.now();
-      this.gameElapsedMilliseconds = localStorage.getItem("gameElapsedMilliseconds");
+      this.gameElapsedMilliseconds = localStorage.getItem("gameElapsedMilliseconds") || 0;
       this.nextHintTime = 5000;
 
       this.timerInterval = setInterval(() => {
@@ -219,9 +218,10 @@ export default {
       HintService.sendGetHintsRequest(this.game.locationId)
           .then(response => {
             this.hints = response.data;
-            localStorage.setItem("hints", JSON.stringify((this.hints));
+            localStorage.setItem("hints", JSON.stringify(this.hints))
           })
           .catch(() => alert("Vihjeid pole v6i said otsa. Oled omap2i."));
+      }
     },
 
     getHint() {
@@ -236,11 +236,14 @@ export default {
     },
 
     fetchKeywords() {
-      KeywordService.sendGetKeywords(this.game.locationId)
+      let storedKeywords = localStorage.getItem("keywords");
+      if (storedKeywords) {
+        this.keywords = JSON.parse(storedKeywords);
+      } else {
+        KeywordService.sendGetKeywords(this.game.locationId)
           .then(response => this.keywords = response.data)
-          .catch(error => {
-        this.someDataBlockErrorResponseObject = error.response.data
-      })
+          .catch(error => this.someDataBlockErrorResponseObject = error.response.data)
+      }
     },
 
     submitAnswer() {

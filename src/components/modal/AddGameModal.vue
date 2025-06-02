@@ -53,30 +53,10 @@ export default {
 
       GameService.sendPostGameRequest(this.selectedCounty, userId)
           .then((response) => {
-            const locationData = response.data;
-
-            const selectedCountyObj = this.counties.find(
-                (county) => county.countyId === this.selectedCounty
-            );
-
-            this.$emit("game-added", {
-              locationName: locationData.locationName || "Unknown Location",
-              countyName: selectedCountyObj
-                  ? selectedCountyObj.countyName
-                  : "Unknown County",
-              image: locationData.image || "",
-              latitude: locationData.latitude,
-              longitude: locationData.longitude,
-              dateAdded: locationData.dateAdded,
-            });
-
-            return GameService.getUserGamesInProgress(userId);
-          })
-          .then((gamesResponse) => {
-            this.$emit("games-updated", gamesResponse.data);
+            this.$emit("event-game-added");
             this.loading = false;
-            this.$emit("close");
           })
+
           .catch((error) => {
             console.error("Failed to submit or fetch games:", error);
             this.loading = false;

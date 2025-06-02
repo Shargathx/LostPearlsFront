@@ -142,7 +142,7 @@
 
           <!-- siin Kaspari lisatud vihjete ja keywordide lisamine -->
           <div v-if="this.isViewMode" class="col-12 mb-3 mt-5">
-           <AlertDanger :error-message="alertMessage" />
+           <AlertDanger :error-message="alertKeywordMissingMessage" />
             <button class="btn btn-success mb-3" @click="viewAddKeywordModal">Add keywords</button>
             <LocationKeywordsTable v-if="this.isViewMode" :keywords="keywords"
                                    @event-keyword-deleted="getLocationKeywords"
@@ -162,6 +162,7 @@
             @update:zoomLevel="setLocationInfoZoomLevel"
             :disabled="!isEditMode"
         />
+        <AlertDanger :error-message="alertImageMissingMessage"/>
         <ImageInput v-if="isEditMode"
                     class="mt-3" ref="imageInput"
                     @event-new-image-selected="setLocationImageData"
@@ -217,7 +218,8 @@ export default {
       userId: Number(sessionStorage.getItem("userId")),
       locationId: 0,
       addKeywordModalIsOpen: false,
-      alertMessage: '',
+      alertKeywordMissingMessage: '',
+      alertImageMissingMessage: 'Add picture for enhanced information',
 
       zoomLevel: 12,
 
@@ -323,9 +325,9 @@ export default {
     handleGetLocationKeywordsResponse(response) {
       this.keywords = response.data
       if (this.keywords.length === 0) {
-        this.alertMessage = 'At least one keyword is mandatory'
+        this.alertKeywordMissingMessage = 'At least one keyword is mandatory'
       } else {
-        this.alertMessage = ''
+        this.alertKeywordMissingMessage = ''
 
       }
     },
@@ -401,6 +403,7 @@ export default {
 
     setLocationImageData(imageData) {
       this.locationInfo.imageData = imageData
+      this.alertImageMissingMessage = ''
     },
 
     triggerFilePicker() {

@@ -1,17 +1,17 @@
 <template>
   <div class="container text-center">
     <div class="row">
-      <div class="col">
+      <div class="col mt-4">
         <!--        <TeaserView/>-->
         <location-image :image-data="game.imageData"/>
         <h3>{{ game.locationName }}</h3>
         <h5>{{ game.countyName }}</h5>
       </div>
-      <div class="col">
+      <div class="col justify-content-center mt-4">
         <p v-if="displayTeaserInfo">{{ game.teaserInfo }}</p>
         <p v-if="displayExtendedInfo">{{ game.extendedInfo }}</p>
       </div>
-      <div class="col leaflet-container">
+      <div class="col leaflet-container mt-4">
         <GameMap
             :zoom-level="game.zoomLevel"
             :latitude="game.lat"
@@ -44,7 +44,7 @@
     <div v-if="game.gameStatus === 'GS'" class="row">
       <div v-if="hintPromptActive" class="hint-prompt">
         <p>Kas sa soovid vihjet?</p>
-        <button @click="offerHint">Jah</button>
+        <button @click="offerHint" class="me-3">Jah</button>
         <button @click="declineHint">Ei</button>
       </div>
       <div v-if="selectedHint" class="hint-display">

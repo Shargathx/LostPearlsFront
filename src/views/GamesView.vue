@@ -59,7 +59,7 @@
           </div>
 
           <!-- Add new game slot -->
-          <div
+          <div v-if="gamesInProgressInfo.availableSlots > 0"
               class="thumbnail-container"
               @click="openAddGameModal"
               role="button"

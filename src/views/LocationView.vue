@@ -56,24 +56,18 @@
           </div>
 
           <div class="col-12">
-            <div class="m-3">
-              <label>zoom level:</label>
+            <div class="m-3 flex flex-col">
+              <label class="mb-1 font-semibold text-gray-700">Zoom Level</label>
               <input
                   v-model.number="locationInfo.zoomlevel"
                   type="number"
                   :disabled="isViewMode"
+                  class="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100"
+                  placeholder="Enter zoom level"
               />
             </div>
-
-            <label for="teaserInfo" class="form-label">Teaser Info</label>
-            <textarea
-                v-model="locationInfo.teaser"
-                id="teaserInfo"
-                rows="2"
-                class="form-control"
-                :disabled="isViewMode">
-            </textarea>
           </div>
+
 
           <div class="col-12">
             <label for="extendedInfo" class="form-label">Extended Info</label>

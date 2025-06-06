@@ -55,9 +55,9 @@
             />
           </div>
 
-          <div class="col-12">
+          <div v-if="isAdmin" class="col-12">
             <div class="m-3 flex flex-col">
-              <label class="mb-1 font-semibold text-gray-700">Zoom Level</label>
+              <label class="mb-1 font-semibold text-gray-700 me-3">Zoom Level</label>
               <input
                   v-model.number="locationInfo.zoomlevel"
                   type="number"
@@ -209,6 +209,7 @@ export default {
   data() {
     return {
       roleName: sessionStorage.getItem("roleName"),
+      isAdmin : false,
       isEditMode: true,
       isViewMode: false,
       userId: Number(sessionStorage.getItem("userId")),
@@ -439,9 +440,17 @@ export default {
           .catch(() => Navigation.navigateToErrorView())
     },
 
+    handleUserRole() {
+      const role = sessionStorage.getItem("roleName")
+      if (role === "admin") {
+        this.isAdmin = true
+      }
+    },
+
   },
 
   beforeMount() {
+    this.handleUserRole()
     this.isViewMode = useRoute().query.locationId !== undefined;
     this.isEditMode = !this.isViewMode;
 
@@ -451,6 +460,7 @@ export default {
       this.getLocationKeywords()
     }
   },
+
 };
 </script>
 

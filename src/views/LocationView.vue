@@ -80,59 +80,67 @@
             </textarea>
           </div>
 
-          <div class="col-12">
-            <label for="question" class="form-label">Question</label>
-            <textarea
-                v-model="locationInfo.question"
-                type="text"
-                id="question"
-                class="form-control"
-                :disabled="isViewMode">
+          <form @submit.prevent="submitLocation">
+            <div class="col-12">
+              <label for="question" class="form-label">Question</label>
+              <textarea
+                  v-model="locationInfo.question"
+                  type="text"
+                  id="question"
+                  class="form-control"
+                  :disabled="isViewMode"
+                  required>
 
             </textarea>
-          </div>
+            </div>
 
-          <div class="col-12">
-            <label for="answer" class="form-label">Answer</label>
-            <input
-                v-model="locationInfo.answer"
-                type="text"
-                id="answer"
-                class="form-control"
-                :disabled="isViewMode"/>
-          </div>
+            <div class="col-12">
+              <label for="answer" class="form-label">Answer</label>
+              <input
+                  v-model="locationInfo.answer"
+                  type="text"
+                  id="answer"
+                  class="form-control"
+                  :disabled="isViewMode"
+                  required/>
+            </div>
 
-          <div v-if="successMessage" class="alert alert-success text-center">
-            {{ successMessage }}
-          </div>
-          <div v-if="errorMessage" class="alert alert-danger text-center">
-            {{ errorMessage }}
-          </div>
-          <div v-if="duplicateExists" class="alert alert-warning">
-            This location already exists with the same name and coordinates.
-          </div>
+            <div class="mt-3">
+              <div v-if="successMessage" class="alert alert-success text-center">
+                {{ successMessage }}
+              </div>
+            </div>
+            <div v-if="errorMessage" class="alert alert-danger text-center">
+              {{ errorMessage }}
+            </div>
+            <div v-if="duplicateExists" class="alert alert-warning">
+              This location already exists with the same name and coordinates.
+            </div>
 
-          <div class="col-12 text-end mt-3">
-            <button
-                v-if="isViewMode"
-                @click="switchToEdit"
-                class="btn btn-secondary">
-              Edit
-            </button>
-            <button
-                v-if="isEditMode"
-                :disabled="duplicateExists || !locationInfoChanged"
-                @click="submitLocation"
-                class="btn btn-primary">
-              {{ locationId === 0 ? "Submit" : "Save changes" }}
-            </button>
-            <button
-                v-if="isEditMode"
-                @click="cancelEdit"
-                class="btn btn-outline-secondary ms-2">
-              Cancel
-            </button>
-          </div>
+            <div class="col-12 text-end mt-3">
+              <button
+                  v-if="isViewMode"
+                  @click="switchToEdit"
+                  class="btn btn-secondary">
+                Edit
+              </button>
+              <button
+                  v-if="isEditMode"
+                  :disabled="duplicateExists || !locationInfoChanged"
+                  type="submit"
+                  class="btn btn-primary">
+                <!--                  @click="submitLocation"-->
+                {{ locationId === 0 ? "Submit" : "Save changes" }}
+              </button>
+              <button
+                  v-if="isEditMode"
+                  @click="cancelEdit"
+                  class="btn btn-outline-secondary ms-2">
+                Cancel
+              </button>
+            </div>
+          </form>
+
 
           <!-- siin Kaspari lisatud vihjete ja keywordide lisamine -->
           <div v-if="this.isViewMode" class="col-12 mb-3 mt-5">
@@ -209,7 +217,7 @@ export default {
   data() {
     return {
       roleName: sessionStorage.getItem("roleName"),
-      isAdmin : false,
+      isAdmin: false,
       isEditMode: true,
       isViewMode: false,
       userId: Number(sessionStorage.getItem("userId")),

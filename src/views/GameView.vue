@@ -32,13 +32,13 @@
           <h5>{{ game.question }}</h5>
         </div>
         <div class="answer-container">
-          <input type="search"  @input="game.answer = $event.target.value" placeholder="Siia kirjuta vastus">
+          <input type="search" @input="game.answer = $event.target.value" placeholder="Siia kirjuta vastus">
           <button @click="submitAnswer">Vasta</button>
           <h5>⏳ Timer: {{ formattedElapsedTime() }}</h5>
         </div>
       </div>
       <div v-if="game.gameStatus === 'GC'">
-        <h2>Sinu tulemus on {{game.points}}</h2>
+        <h2>Sinu tulemus on {{ game.points }}</h2>
       </div>
     </div>
     <div v-if="game.gameStatus === 'GS'" class="row">
@@ -50,7 +50,7 @@
       <div v-if="selectedHint" class="hint-display">
         <h5>{{ selectedHint }}</h5>
       </div>
-      <div v-if="hintsPaused" class="request-hint">
+      <div v-if="hintsPaused && !hintCooldownActive" class="request-hint">
         <button @click="resumeHints">Küsi vihjet</button>
       </div>
     </div>
@@ -59,7 +59,6 @@
 
 <script>
 
-import axios from "axios";
 import GameService from "@/services/GameService";
 import {useRoute} from "vue-router";
 import TeaserView from "@/components/location/TeaserView.vue";
@@ -79,13 +78,15 @@ export default {
       isGameAdded: false,
       isGameStarted: false,
       isGameComplete: false,
+      hintCooldownActive: false,
+      hintDeclinedCooldown: false,
       gameId: Number(useRoute().query.gameId),
       userId: '',
       displayTeaserInfo: false,
       displayExtendedInfo: false,
       gameElapsedMilliseconds: '',
-      nextHintTime:'',
-      timerInterval:'',
+      nextHintTime: '',
+      timerInterval: '',
 
       game: {
         countyName: '',
@@ -114,11 +115,11 @@ export default {
         }
       ],
       hintPromptActive: false,
-      selectedHint:'',
-      availableHints:'',
+      selectedHint: '',
+      availableHints: '',
       hintsPaused: '',
 
-      keywords:[
+      keywords: [
         {
           locationId: '',
           keyword: '',
@@ -182,7 +183,7 @@ export default {
         localStorage.setItem("gameElapsedMilliseconds", this.gameElapsedMilliseconds);
 
         // Offer a hint every 10 minutes
-        if (this.gameElapsedMilliseconds >= this.nextHintTime) {
+        if (this.gameElapsedMilliseconds >= this.nextHintTime && !this.hintPromptActive && !this.hintsPaused && !this.hintCooldownActive) {
           this.hintPromptActive = true;
           this.nextHintTime += 5000; // Schedule next hint - 60000
         }
@@ -205,16 +206,30 @@ export default {
       this.hintPromptActive = false;
       this.getHint(); // Generate a hint only when "Jah" is clicked
       this.hintsPaused = false; // Resume automatic hint prompts
+      this.hintCooldownActive = true;
+      setTimeout(() => {
+        this.hintCooldownActive = false;
+      }, 5000);
     },
 
     declineHint() {
       this.hintPromptActive = false; // Hide prompt
       this.hintsPaused = true; // Pause automatic hint prompts
+      // this.hintDeclinedCooldown = true;
+      this.hintCooldownActive = true;
+      setTimeout(() => {
+        // this.hintDeclinedCooldown = false;
+        this.hintsPaused = false;
+        this.hintCooldownActive = false;
+        this.nextHintTime = this.gameElapsedMilliseconds + 1000;
+      }, 5000)
     },
 
     resumeHints() {
       this.hintsPaused = false; // Resume automatic hint prompts
-      this.getHint(); // Give the previously declined hint
+      // this.getHint(); // Give the previously declined hint
+      this.hintPromptActive = false;
+      this.selectedHint = '';
     },
 
     fetchHints() {
@@ -227,7 +242,7 @@ export default {
               this.hints = response.data;
               localStorage.setItem("hints", JSON.stringify(this.hints))
             })
-            .catch(() => alert("Vihjeid pole v6i said otsa. Oled omap2i."));
+            .catch(() => alert("Vihjeid pole või said otsa. Oled omapäi. Survive!"));
       }
     },
 
@@ -317,6 +332,7 @@ export default {
   flex-direction: column; /* Stack elements vertically */
   align-items: flex-start; /* Align everything to the left */
 }
+
 .question-container {
   width: 100%;
   text-align: left; /* Ensures the question stays on one line */

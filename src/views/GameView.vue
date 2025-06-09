@@ -41,17 +41,30 @@
         <h2>Sinu tulemus on {{ game.points }}</h2>
       </div>
     </div>
-    <div v-if="game.gameStatus === 'GS'" class="row">
-      <div v-if="hintPromptActive" class="hint-prompt">
-        <p>Kas sa soovid vihjet?</p>
-        <button @click="offerHint" class="me-3">Jah</button>
-        <button @click="declineHint">Ei</button>
+    <div v-if="game.gameStatus === 'GS'" class="row justify-content-center mt-4">
+
+      <!-- Hint Prompt -->
+      <div v-if="hintPromptActive" class="hint-prompt card shadow-sm p-4">
+        <p class="fs-5 mb-3">Kas sa soovid vihjet?</p>
+        <div class="d-flex justify-content-center gap-4">
+          <button @click="offerHint" class="me-3">Jah</button>
+          <button @click="declineHint">Ei</button>
+        </div>
       </div>
-      <div v-if="selectedHint" class="hint-display">
-        <h5>{{ selectedHint }}</h5>
+
+      <!-- Displayed Hints -->
+      <div v-if="hintsShown && hintsShown.length" class="hint-display alert alert-info mt-4 w-75 mx-auto">
+        <h5 class="mb-3">Vihjed:</h5>
+        <ul class="list-unstyled mb-0 ps-3">
+          <li v-for="(hint, index) in hintsShown" :key="index" class="mb-2">
+            👉 {{ hint }}
+          </li>
+        </ul>
       </div>
-      <div v-if="hintsPaused && !hintCooldownActive" class="request-hint">
-        <button @click="resumeHints">Küsi vihjet</button>
+
+      <!-- Resume Hint Button -->
+      <div v-if="hintsPaused && !hintCooldownActive" class="request-hint mt-3">
+        <button @click="resumeHints" class="btn btn-primary">Küsi vihjet</button>
       </div>
     </div>
   </div>
@@ -75,6 +88,7 @@ export default {
   components: {GameStartedView: GameStartedViewView, LocationImage, TeaserView, GameMap},
   data() {
     return {
+      hintsShown: [],
       isGameAdded: false,
       isGameStarted: false,
       isGameComplete: false,
@@ -115,7 +129,7 @@ export default {
         }
       ],
       hintPromptActive: false,
-      selectedHint: '',
+      // selectedHint: '',
       availableHints: '',
       hintsPaused: '',
 
@@ -248,12 +262,13 @@ export default {
 
     getHint() {
       if (this.hints.length === 0) {
-        this.selectedHint = "No hints available.";
+        // this.selectedHint = "No hints available.";
         return;
       }
 
       let randomIndex = Math.floor(Math.random() * this.hints.length);
-      this.selectedHint = this.hints[randomIndex].hint;
+      const newHint = this.hints[randomIndex].hint;
+      this.hintsShown.unshift(newHint); // Add new hint at the top
       this.hints.splice(randomIndex, 1); // Remove used hint
       this.game.hintsUsed++;// Increment hint count
       this.hintPromptActive = false;
@@ -343,6 +358,23 @@ export default {
   display: flex;
   align-items: center;
   gap: 15px; /* Adds spacing between elements */
+}
+
+.hint-prompt {
+  max-width: 500px;
+  margin: auto;
+  background-color: #f8f9fa;
+  border-radius: 15px;
+  text-align: center;
+}
+
+.hint-display {
+  border-radius: 10px;
+  font-size: 1.1rem;
+}
+
+.request-hint {
+  text-align: center;
 }
 
 </style>

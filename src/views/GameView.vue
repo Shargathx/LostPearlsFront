@@ -60,6 +60,9 @@
             👉 {{ hint }}
           </li>
         </ul>
+        <div v-if="noMoreHintsWarning" class="alert alert-warning mt-3 w-75 mx-auto text-center">
+          Vihjeid pole enam saadaval!
+        </div>
       </div>
 
       <!-- Resume Hint Button -->
@@ -88,6 +91,7 @@ export default {
   components: {GameStartedView: GameStartedViewView, LocationImage, TeaserView, GameMap},
   data() {
     return {
+      noMoreHintsWarning: false,
       hintsShown: [],
       isGameAdded: false,
       isGameStarted: false,
@@ -217,10 +221,18 @@ export default {
     },
 
     offerHint() {
+      if (!this.hints.length) {
+        this.noMoreHintsWarning = true;
+        this.hintPromptActive = false;
+        return;
+      }
+
+      this.noMoreHintsWarning = false;
       this.hintPromptActive = false;
       this.getHint(); // Generate a hint only when "Jah" is clicked
       this.hintsPaused = false; // Resume automatic hint prompts
       this.hintCooldownActive = true;
+
       setTimeout(() => {
         this.hintCooldownActive = false;
       }, 5000);

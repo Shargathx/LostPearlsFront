@@ -132,7 +132,8 @@ export default {
           hint: '',
         }
       ],
-      hintPromptActive: false,
+
+      hintPromptActive: true,
       // selectedHint: '',
       availableHints: '',
       hintsPaused: '',
@@ -150,6 +151,13 @@ export default {
       }
     }
   },
+
+  computed: {
+    hintsRemaining() {
+      return this.hints.length;
+    }
+  },
+
   methods: {
     text,
 
@@ -221,7 +229,7 @@ export default {
     },
 
     offerHint() {
-      if (!this.hints.length) {
+      if (this.hintsRemaining === 0) {
         this.noMoreHintsWarning = true;
         this.hintPromptActive = false;
         return;

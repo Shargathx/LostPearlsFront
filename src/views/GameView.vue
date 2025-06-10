@@ -7,7 +7,7 @@
         <h3>{{ game.locationName }}</h3>
         <h5>{{ game.countyName }}</h5>
       </div>
-      <div class="col justify-content-center mt-4">
+      <div class="col mt-4 d-flex justify-content-center align-items-center">
         <p v-if="displayTeaserInfo">{{ game.teaserInfo }}</p>
         <p v-if="displayExtendedInfo">{{ game.extendedInfo }}</p>
       </div>
@@ -32,19 +32,22 @@
           <h5>{{ game.question }}</h5>
         </div>
         <div class="answer-container">
-          <input type="search" @input="game.answer = $event.target.value" placeholder="Siia kirjuta vastus">
-          <button @click="submitAnswer">Vasta</button>
+          <input type="search" @keyup.enter="submitAnswer" @input="game.answer = $event.target.value" placeholder="Enter answer here">
+          <button class="btn btn-success" @click="submitAnswer">Submit</button>
+          <p v-if="errorMessage" style="color: red; margin-top: 8px;">
+            {{ errorMessage }}
+          </p>
           <h5>⏳ Timer: {{ formattedElapsedTime() }}</h5>
         </div>
       </div>
       <div v-if="game.gameStatus === 'GC'">
-        <h2>Sinu tulemus on {{ game.points }}</h2>
+        <h2>Your score is {{ game.points }}</h2>
       </div>
     </div>
     <div v-if="game.gameStatus === 'GS'" class="row justify-content-center mt-4">
 
       <!-- Hint Prompt -->
-      <div v-if="hintPromptActive" class="hint-prompt card shadow-sm p-4">
+      <div v-if="hintPromptActive && hintsRemaining > 0" class="hint-prompt card shadow-sm p-4">
         <p class="fs-5 mb-3">Kas sa soovid vihjet?</p>
         <div class="d-flex justify-content-center gap-4">
           <button @click="offerHint" class="me-3">Jah</button>
@@ -60,13 +63,13 @@
             👉 {{ hint }}
           </li>
         </ul>
-        <div v-if="noMoreHintsWarning" class="alert alert-warning mt-3 w-75 mx-auto text-center">
-          Vihjeid pole enam saadaval!
+        <div v-if="hintsRemaining === 0" class="alert alert-warning mt-3 w-75 mx-auto text-center">
+          Rohkem vihjeid pole!
         </div>
       </div>
 
       <!-- Resume Hint Button -->
-      <div v-if="hintsPaused && !hintCooldownActive" class="request-hint mt-3">
+      <div v-if="hintsPaused && !hintCooldownActive && hintsRemaining > 0" class="request-hint mt-3">
         <button @click="resumeHints" class="btn btn-primary">Küsi vihjet</button>
       </div>
     </div>
@@ -91,6 +94,8 @@ export default {
   components: {GameStartedView: GameStartedViewView, LocationImage, TeaserView, GameMap},
   data() {
     return {
+      errorMessage: '',
+      successMessage: '',
       noMoreHintsWarning: false,
       hintsShown: [],
       isGameAdded: false,
@@ -240,6 +245,7 @@ export default {
       this.getHint(); // Generate a hint only when "Jah" is clicked
       this.hintsPaused = false; // Resume automatic hint prompts
       this.hintCooldownActive = true;
+      this.nextHintTime = this.gameElapsedMilliseconds + 5000;
 
       setTimeout(() => {
         this.hintCooldownActive = false;
@@ -309,11 +315,15 @@ export default {
     },
 
     submitAnswer() {
-      let userAnswer = this.game.answer.trim();
-      if (!userAnswer || userAnswer.length === 0) {
-        alert("Palun sisesta vastus!");
+      let userAnswer = (this.game.answer || '').trim();
+      if (!userAnswer) {
+        this.errorMessage = "Please enter a valid answer!";
+        this.successMessage = '';
         return;
       }
+      this.errorMessage = '';
+      this.successMessage = '';
+
       let answerLower = userAnswer.toLowerCase();
       let matchedKeyword = null;
 
@@ -328,10 +338,12 @@ export default {
       }
 
       if (matchedKeyword) {
-        alert("Õige vastus!");
+        this.successMessage = "Correct answer!"
+        this.errorMessage = '';
         this.endGame();
       } else {
-        alert("Vale vastus, proovi uuesti!");
+        this.errorMessage = "Wrong answer, try again."
+        this.successMessage = ""
       }
     },
 
